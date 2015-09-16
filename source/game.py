@@ -119,6 +119,8 @@ while not crashed:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             crashed = True
+
+#Keyboard buttons without MODS    
         if event.type == pygame.KEYDOWN:
             if pygame.key.get_mods() == 0:
                 if event.key == pygame.K_RIGHT:
@@ -274,6 +276,7 @@ while not crashed:
                             lista_nota.pop(i-zastava_delete)
                             zastava_delete +=1
 
+#Keyboard buttons with LSHIFT as mod    
             if pygame.key.get_mods() & pygame.KMOD_LSHIFT:
                 obj_cursor.sprite = 1
                 if event.key == pygame.K_RIGHT:
@@ -297,6 +300,8 @@ while not crashed:
                             lista_nota.append(dodaj_notu(pixel2Pozicija(pozicija2Pixel(obj_cursor.pozicija)+bg_scroll_x), pixel2Ton(ton2Pixel(obj_cursor.ton)-bg_scroll_y), obj_cursor.trajanje, 1))
                     else:
                         lista_nota.append(dodaj_notu(pixel2Pozicija(pozicija2Pixel(obj_cursor.pozicija)+bg_scroll_x), pixel2Ton(ton2Pixel(obj_cursor.ton)-bg_scroll_y), obj_cursor.trajanje, 1))
+
+#Keyboard buttons with LCTRL as mod    
             if ((pygame.key.get_mods() & pygame.KMOD_LCTRL)):
                 obj_cursor.sprite = 1
                 if event.key == pygame.K_RIGHT:
@@ -319,6 +324,8 @@ while not crashed:
                             lista_nota.append(dodaj_notu(pixel2Pozicija(pozicija2Pixel(obj_cursor.pozicija)+bg_scroll_x), pixel2Ton(ton2Pixel(obj_cursor.ton)-bg_scroll_y), obj_cursor.trajanje, 2))
                     else:
                         lista_nota.append(dodaj_notu(pixel2Pozicija(pozicija2Pixel(obj_cursor.pozicija)+bg_scroll_x), pixel2Ton(ton2Pixel(obj_cursor.ton)-bg_scroll_y), obj_cursor.trajanje, 2))
+
+#Keyboard buttons with LALT as mod    
             if pygame.key.get_mods() & pygame.KMOD_LALT:
                 obj_cursor.sprite = 1
                 if event.key == pygame.K_UP:
@@ -333,27 +340,7 @@ while not crashed:
                 if event.key == pygame.K_RIGHT:
                     print("LALT+K_RIGHT")
                     bg_scroll_x +=6
-             #FETISH CURSOR LEFT RIGHT
-#            if pygame.key.get_mods() & pygame.KMOD_LSHIFT:
-#                cursor_color = 1
-#                print("SHIFT")
-#                shift_status = 1
-#                if event.key == pygame.K_RIGHT:
-#                    if ((left == 0) & (right == 0)):
-#                        right = 1
-#                    if ((left == 0) & (right == 1)): #right mod
-#                        obj_cursor.trajanje += 6
-#                    if ((left == 1) & (right == 0)): #left mod
-#                        obj_cursor.trajanje -= 6
-#                        cursor.x_left += 6
-#                if event.key == pygame.K_LEFT:
-#                    if ((left == 0) & (right == 0)):
-#                        left = 1
-#                    if ((left == 0) & (right == 1)):#right mod
-#                        obj_cursor.trajanje -= 6
-#                    if ((left == 1) & (right == 0)):#left mod
-#                        obj_cursor.trajanje += 6
-#                        cursor.x_left -=6
+
         if event.type == pygame.KEYUP:
             if pygame.key.get_mods()==0 & pygame.KMOD_LSHIFT:
                 obj_cursor.sprite = 0
