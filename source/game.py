@@ -126,9 +126,11 @@ while not crashed:
                 if event.key == pygame.K_LEFT:
                     obj_cursor.pozicija -= 1
                 if event.key == pygame.K_UP:
-                    obj_cursor.ton += 1
+                    if obj_cursor.ton < 40:
+                        obj_cursor.ton += 1
                 if event.key == pygame.K_DOWN:
-                    obj_cursor.ton -= 1
+                    if obj_cursor.ton > 0:
+                        obj_cursor.ton -= 1
                 if event.key == pygame.K_RETURN:
                     if lista_nota:
                         zastava_return = 0 #zastava je zbog brisanja iz liste
@@ -164,41 +166,31 @@ while not crashed:
                   obj_cursor.bg_scroll_y = 0
                   obj_cursor.pozicija = 0
                   obj_cursor.ton = 20
+
                 if event.key == pygame.K_END:
-                  obj_cursor.bg_scroll_x = 96*broj_taktova
-                  obj_cursor.pozicija = 0
-                  #obj_cursor.ton = 19
+                  obj_cursor.pozicija = 16*broj_taktova
+                  obj_cursor.bg_scroll_x = obj_cursor.pozicija
                 if event.key == pygame.K_PAGEUP:
-                  obj_cursor.bg_scroll_x += 96
+                    if 0 < obj_cursor.bg_scroll_y < 8:
+                        obj_cursor.bg_scroll_y = 8
+                    elif obj_cursor.bg_scroll_y <= 0:
+                        obj_cursor.bg_scroll_y += 8
+                    obj_cursor.apsolute_y = obj_cursor.ton - 20 - (obj_cursor.bg_scroll_y)
+                    if obj_cursor.apsolute_y < -12:
+                        obj_cursor.ton += abs(obj_cursor.apsolute_y) - 12
+
                 if event.key == pygame.K_PAGEDOWN:
-                  obj_cursor.bg_scroll_x -= 96
+                    if -8 < obj_cursor.bg_scroll_y < 0:
+                        obj_cursor.bg_scroll_y = -8
+                    elif obj_cursor.bg_scroll_y >= 0:
+                        obj_cursor.bg_scroll_y -= 8
+                    obj_cursor.apsolute_y = obj_cursor.ton - 20 - (obj_cursor.bg_scroll_y)
+                    if obj_cursor.apsolute_y > 12:
+                        obj_cursor.ton -= abs(obj_cursor.apsolute_y) - 12
 
-                if event.key == pygame.K_f:
-                    #print("obj_cursor.ton", obj_cursor.ton)
-                    print("obj_cursor_y", obj_cursor_y)
-                    print("obj_cursor.bg_scroll_y/3", obj_cursor.bg_scroll_y/3)
-                    print("obj_cursor_y-(obj_cursor.bg_scroll_y/3)", obj_cursor_y-(obj_cursor.bg_scroll_y/3))
-
-                if event.key == pygame.K_a:
+                #adding rests
+                if event.key == pygame.K_r:
                     obj_cursor.sprite = 2
-                    #print(kljucevi[pixel2Ton(cursor.y_left)%27])
-                    #print(slovoPozicija(removeLily(kljucevi[pixel2Ton(cursor.y_left)%27])))
-                    #print(obj_cursor.trajanje)
-                    #print(obj_cursor.pozicija)
-                    #print(obj_cursor.ton)
-                    #print(ton2Pixel(obj_cursor.ton))
-                    #print(pixel2Ton(ton2Pixel(obj_cursor.ton)))
-                    #print(ton2Pixel(pixel2Ton(ton2Pixel(obj_cursor.ton))))
-                    #print("Y:" + str(cursor.y_left))
-                    #print("BG:" + str(obj_cursor.bg_scroll_y))
-                    #print(pixel2Pozicija(cursor.x_left+obj_cursor.bg_scroll_x))
-                    #print(pixel2Ton(cursor.y_left))
-                    #print(pixel2RezolucijaTrajanja(obj_cursor.trajanje))
-                    #print(lista_nota)
-
-                    #for i in lista_nota:
-                    #    print(i.pozicija, i.ton, i.trajanje)
-                    #print()
                     max_doba = (broj_taktova+1)*16
                     stepo = (16, 8, 4, 2, 1)
                     swap_cursor = (obj_cursor.pozicija, obj_cursor.ton, obj_cursor.trajanje)
@@ -262,7 +254,7 @@ while not crashed:
             if pygame.key.get_mods() & pygame.KMOD_LSHIFT:
                 obj_cursor.sprite = 1
                 if event.key == pygame.K_RIGHT:
-                        if obj_cursor.trajanje < 16:
+                        if obj_cursor.trajanje < 15:
                             obj_cursor.trajanje += 1
                 if event.key == pygame.K_LEFT:
                         if obj_cursor.trajanje > 0:
@@ -311,17 +303,28 @@ while not crashed:
             if pygame.key.get_mods() & pygame.KMOD_LALT:
                 obj_cursor.sprite = 1
                 if event.key == pygame.K_UP:
-                    print("LALT+K_UP")
-                    obj_cursor.bg_scroll_y_offset +=3
+                    if obj_cursor.bg_scroll_y < 8:
+                        obj_cursor.bg_scroll_y +=1
+                        obj_cursor.ton +=1
                 if event.key == pygame.K_DOWN:
-                    print("LALT+K_DOWN")
-                    obj_cursor.bg_scroll_y_offset -=3
+                    if obj_cursor.bg_scroll_y > -8:
+                        obj_cursor.bg_scroll_y -=1
+                        obj_cursor.ton -=1
                 if event.key == pygame.K_LEFT:
-                    print("LALT+K_LEFT")
-                    obj_cursor.bg_scroll_x_offset -=6
+                    obj_cursor.bg_scroll_x -=1
                 if event.key == pygame.K_RIGHT:
-                    print("LALT+K_RIGHT")
-                    obj_cursor.bg_scroll_x_offset +=6
+                    obj_cursor.bg_scroll_x +=1
+
+            if event.key == pygame.K_f:
+                #print("obj_cursor.ton", obj_cursor.ton)
+                print("obj_cursor.ton", obj_cursor.ton)
+                print("obj_cursor.pozicija", obj_cursor.pozicija)
+                print("obj_cursor.bg_scroll_x", obj_cursor.bg_scroll_x)
+                print("obj_cursor.bg_scroll_y", obj_cursor.bg_scroll_y)
+                print("obj_cursor.apsolute_x", obj_cursor.apsolute_x)
+                print("obj_cursor.apsolute_y", obj_cursor.apsolute_y)
+                print("---------------------")
+
 
         if event.type == pygame.KEYUP:
             if pygame.key.get_mods()==0 & pygame.KMOD_LSHIFT:
@@ -332,40 +335,44 @@ while not crashed:
 
     #racunanje bg_scroll-a
     #pozicija cursora u svakom trenutku ovisno na okvir screen-a
-    #obj_cursor_y
-    #(obj_cursor.bg_scroll_y_offset / 3)
-    #obj_cursor.bg_scroll_y
-    obj_cursor_y = obj_cursor.ton - 20
-    if obj_cursor_y > 5:
-        obj_cursor.bg_scroll_y = (obj_cursor_y * 3) + obj_cursor.bg_scroll_y_offset - (5*3)
-    if (obj_cursor_y-(obj_cursor.bg_scroll_y/3)) > 13:
-        obj_cursor.ton -= 1
+    obj_cursor.apsolute_y = obj_cursor.ton - 20 - (obj_cursor.bg_scroll_y)
+    obj_cursor.apsolute_x = obj_cursor.pozicija - (obj_cursor.bg_scroll_x)
 
+    if obj_cursor.apsolute_y > 12:
+        obj_cursor.bg_scroll_y +=1
+    elif obj_cursor.apsolute_y < -12:
+        obj_cursor.bg_scroll_y -=1
 
-    #obj_cursor.bg_scroll_x = obj_cursor.pozicija * 6 + obj_cursor.bg_scroll_x_offset
+    if obj_cursor.apsolute_x < 0:
+        obj_cursor.bg_scroll_x -=1
+    elif obj_cursor.apsolute_x + obj_cursor.trajanje > 22:
+        obj_cursor.bg_scroll_x +=1
+
+    bg_scroll_x = obj_cursor.bg_scroll_x * 6
+    bg_scroll_y = obj_cursor.bg_scroll_y * 3
 
     #flipanje
     screen.fill(color_white)
-    blit_prvi_takt(18-obj_cursor.bg_scroll_x,obj_cursor.bg_scroll_y-15+30)
+    blit_prvi_takt(18-bg_scroll_x,bg_scroll_y-15+30)
 
-    #if drugi_takt_lijevi-obj_cursor.bg_scroll_x < 67:
+    #if drugi_takt_lijevi-bg_scroll_x < 67:
     for i in range(0, broj_taktova):
-      blit_drugi_takt(drugi_takt_desni+i*96-obj_cursor.bg_scroll_x,obj_cursor.bg_scroll_y-15+30)
+      blit_drugi_takt(drugi_takt_desni+i*96-bg_scroll_x,bg_scroll_y-15+30)
 
-    blit_zadnji_takt(drugi_takt_desni+broj_taktova*96-obj_cursor.bg_scroll_x,obj_cursor.bg_scroll_y-15+30)
+    blit_zadnji_takt(drugi_takt_desni+broj_taktova*96-bg_scroll_x,bg_scroll_y-15+30)
 
 
     for i in lista_nota:
-        pygame.draw.rect(screen, lista_boja[i.predikat*2], [(pozicija2Pixel(i.pozicija)+2-obj_cursor.bg_scroll_x)*display_scale_factor,(ton2Pixel(i.ton)+2+obj_cursor.bg_scroll_y)*display_scale_factor,(trajanje2Pixel(i.trajanje)-1)*display_scale_factor,3*display_scale_factor] )
-        pygame.draw.rect(screen, lista_boja[i.predikat*2+1], [(pozicija2Pixel(i.pozicija)+3-obj_cursor.bg_scroll_x)*display_scale_factor,(ton2Pixel(i.ton)+3+obj_cursor.bg_scroll_y)*display_scale_factor,(trajanje2Pixel(i.trajanje)-3)*display_scale_factor,(3-2)*display_scale_factor] )
+        pygame.draw.rect(screen, lista_boja[i.predikat*2], [(pozicija2Pixel(i.pozicija)+2-bg_scroll_x)*display_scale_factor,(ton2Pixel(i.ton)+2+bg_scroll_y)*display_scale_factor,(trajanje2Pixel(i.trajanje)-1)*display_scale_factor,3*display_scale_factor] )
+        pygame.draw.rect(screen, lista_boja[i.predikat*2+1], [(pozicija2Pixel(i.pozicija)+3-bg_scroll_x)*display_scale_factor,(ton2Pixel(i.ton)+3+bg_scroll_y)*display_scale_factor,(trajanje2Pixel(i.trajanje)-3)*display_scale_factor,(3-2)*display_scale_factor] )
 
-    blit_cursor(pozicija2Pixel(obj_cursor.pozicija)-obj_cursor.bg_scroll_x,ton2Pixel(obj_cursor.ton)+obj_cursor.bg_scroll_y,pozicija2Pixel(obj_cursor.pozicija)+trajanje2Pixel(obj_cursor.trajanje)-obj_cursor.bg_scroll_x,ton2Pixel(obj_cursor.ton)+obj_cursor.bg_scroll_y,obj_cursor.sprite)
+    blit_cursor(pozicija2Pixel(obj_cursor.pozicija)-bg_scroll_x,ton2Pixel(obj_cursor.ton)+bg_scroll_y,pozicija2Pixel(obj_cursor.pozicija)+trajanje2Pixel(obj_cursor.trajanje)-bg_scroll_x,ton2Pixel(obj_cursor.ton)+bg_scroll_y,obj_cursor.sprite)
 
     for i,j in enumerate(kljucevi[obj_cursor.ton][0] + kljucevi[obj_cursor.ton][1] + rijecnikNotnihVrijednosti[obj_cursor.trajanje]):
         blit_slovo((i*4)+20,90-5,slovoPozicija(j))
 
     #plavi okvir
-    blit_kljucevi(0,-15+obj_cursor.bg_scroll_y)
+    blit_kljucevi(0,-15+bg_scroll_y)
     blit_rub(0,0)
     pygame.display.flip()
     clock.tick(60)
