@@ -58,7 +58,8 @@ for i in range(0,6):
 #loading letter sprites into list
 list_sprite_slova = []
 #range of letters in the list
-range_slova = 19
+#range_slova = 24
+range_slova = len(spriteSlova)
 for i in range(0,range_slova):
     pic_slova.set_clip(pygame.Rect(pozicijaSprite(i,3),0,3,5))
     list_sprite_slova.append(pic_slova.subsurface(pic_slova.get_clip()))
@@ -124,7 +125,8 @@ while not crashed:
                 if event.key == pygame.K_RIGHT:
                     obj_cursor.pozicija += 1
                 if event.key == pygame.K_LEFT:
-                    obj_cursor.pozicija -= 1
+                    if obj_cursor.pozicija > -15:
+                        obj_cursor.pozicija -= 1
                 if event.key == pygame.K_UP:
                     if obj_cursor.ton < 40:
                         obj_cursor.ton += 1
@@ -368,8 +370,13 @@ while not crashed:
 
     blit_cursor(pozicija2Pixel(obj_cursor.pozicija)-bg_scroll_x,ton2Pixel(obj_cursor.ton)+bg_scroll_y,pozicija2Pixel(obj_cursor.pozicija)+trajanje2Pixel(obj_cursor.trajanje)-bg_scroll_x,ton2Pixel(obj_cursor.ton)+bg_scroll_y,obj_cursor.sprite)
 
+    #show lilypond note value
     for i,j in enumerate(kljucevi[obj_cursor.ton][0] + kljucevi[obj_cursor.ton][1] + rijecnikNotnihVrijednosti[obj_cursor.trajanje]):
         blit_slovo((i*4)+20,90-5,slovoPozicija(j))
+
+    #show measure number
+    for i,j in enumerate("B" + str(int(obj_cursor.pozicija/16)+1)):
+        blit_slovo((i*4)+20,0,slovoPozicija(j))
 
     #plavi okvir
     blit_kljucevi(0,-15+bg_scroll_y)
