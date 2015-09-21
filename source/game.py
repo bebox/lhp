@@ -108,8 +108,6 @@ obj_cursor = cursor(0, 20, 0) #numbers are pixels in which the cursor is initial
 
 lista_nota = []
 shift_status = 0
-bg_scroll_x = 0
-bg_scroll_y = 0
 
 drugi_takt_lijevi = 115
 drugi_takt_desni = 115
@@ -124,40 +122,25 @@ while not crashed:
         if event.type == pygame.KEYDOWN:
             if pygame.key.get_mods() == 0:
                 if event.key == pygame.K_RIGHT:
-                    if obj_cursor.pozicija == 22:
-                      bg_scroll_x += 6
-                    else:
-                      obj_cursor.pozicija += 1
+                    obj_cursor.pozicija += 1
                 if event.key == pygame.K_LEFT:
-                    if obj_cursor.pozicija == 0:
-                      bg_scroll_x -= 6
-                    else:
-                      obj_cursor.pozicija -= 1
+                    obj_cursor.pozicija -= 1
                 if event.key == pygame.K_UP:
-                    if obj_cursor.ton == 32 and pixel2Ton(ton2Pixel(obj_cursor.ton)-bg_scroll_y)<40: #spusta bg ako cursor dojde do margine
-                      bg_scroll_y +=3  
-                    else:
-                      if(pixel2Ton(ton2Pixel(obj_cursor.ton)-bg_scroll_y))<40:
-                        obj_cursor.ton += 1
+                    obj_cursor.ton += 1
                 if event.key == pygame.K_DOWN:
-                    if obj_cursor.ton == 8 and pixel2Ton(ton2Pixel(obj_cursor.ton)-bg_scroll_y)>0:
-                      bg_scroll_y -=3
-                    else:
-                      if(pixel2Ton(ton2Pixel(obj_cursor.ton)-bg_scroll_y))>0:
-                        obj_cursor.ton -= 1
+                    obj_cursor.ton -= 1
                 if event.key == pygame.K_RETURN:
                     if lista_nota:
                         zastava_return = 0 #zastava je zbog brisanja iz liste
                         for i in lista_nota:
-                            if checkXColision(i,pixel2Pozicija(pozicija2Pixel(obj_cursor.pozicija)+bg_scroll_x), obj_cursor.trajanje):
+                            if checkXColision(i,obj_cursor.pozicija, obj_cursor.trajanje):
                                 zastava_return += 1
                         if zastava_return:
                             obj_cursor.sprite = 2
                         else:
-                            lista_nota.append(dodaj_notu(pixel2Pozicija(pozicija2Pixel(obj_cursor.pozicija)+bg_scroll_x), pixel2Ton(ton2Pixel(obj_cursor.ton)-bg_scroll_y), obj_cursor.trajanje, 0))
+                            lista_nota.append(dodaj_notu(obj_cursor.pozicija, obj_cursor.ton, obj_cursor.trajanje, 0))
                     else:
-                        lista_nota.append(dodaj_notu(pixel2Pozicija(pozicija2Pixel(obj_cursor.pozicija)+bg_scroll_x), pixel2Ton(ton2Pixel(obj_cursor.ton)-bg_scroll_y), obj_cursor.trajanje, 0))
-                        #lista_nota.append(nota(obj_cursor.pozicija+pixel2Pozicija(bg_scroll_x), obj_cursor.ton-pixel2Ton(bg_scroll_y), obj_cursor.trajanje, 0))
+                        lista_nota.append(dodaj_notu(obj_cursor.pozicija, obj_cursor.ton, obj_cursor.trajanje, 0))
                 #if event.key == pygame.K_DELETE:
 
                 if event.key == pygame.K_1:
@@ -177,20 +160,25 @@ while not crashed:
                     broj_taktova += 1
 
                 if event.key == pygame.K_HOME:
-                  bg_scroll_x = 0
-                  bg_scroll_y = 0
+                  obj_cursor.bg_scroll_x = 0
+                  obj_cursor.bg_scroll_y = 0
                   obj_cursor.pozicija = 0
                   obj_cursor.ton = 20
                 if event.key == pygame.K_END:
-                  bg_scroll_x = 96*broj_taktova
+                  obj_cursor.bg_scroll_x = 96*broj_taktova
                   obj_cursor.pozicija = 0
                   #obj_cursor.ton = 19
                 if event.key == pygame.K_PAGEUP:
-                  bg_scroll_x += 96
+                  obj_cursor.bg_scroll_x += 96
                 if event.key == pygame.K_PAGEDOWN:
-                  bg_scroll_x -= 96
+                  obj_cursor.bg_scroll_x -= 96
+
                 if event.key == pygame.K_f:
-                    print(pixel2Ton(ton2Pixel(obj_cursor.ton)-bg_scroll_y))
+                    #print("obj_cursor.ton", obj_cursor.ton)
+                    print("obj_cursor_y", obj_cursor_y)
+                    print("obj_cursor.bg_scroll_y/3", obj_cursor.bg_scroll_y/3)
+                    print("obj_cursor_y-(obj_cursor.bg_scroll_y/3)", obj_cursor_y-(obj_cursor.bg_scroll_y/3))
+
                 if event.key == pygame.K_a:
                     obj_cursor.sprite = 2
                     #print(kljucevi[pixel2Ton(cursor.y_left)%27])
@@ -202,8 +190,8 @@ while not crashed:
                     #print(pixel2Ton(ton2Pixel(obj_cursor.ton)))
                     #print(ton2Pixel(pixel2Ton(ton2Pixel(obj_cursor.ton))))
                     #print("Y:" + str(cursor.y_left))
-                    #print("BG:" + str(bg_scroll_y))
-                    #print(pixel2Pozicija(cursor.x_left+bg_scroll_x))
+                    #print("BG:" + str(obj_cursor.bg_scroll_y))
+                    #print(pixel2Pozicija(cursor.x_left+obj_cursor.bg_scroll_x))
                     #print(pixel2Ton(cursor.y_left))
                     #print(pixel2RezolucijaTrajanja(obj_cursor.trajanje))
                     #print(lista_nota)
@@ -223,23 +211,17 @@ while not crashed:
                           obj_cursor.pozicija = pozicija
                           lista_nota.append(dodaj_notu(obj_cursor.pozicija, obj_cursor.ton, obj_cursor.trajanje, 3))
                           print("dodajem notu na poziciju "+str(pozicija))
-                          #blit_cursor(pozicija2Pixel(obj_cursor.pozicija),ton2Pixel(obj_cursor.ton),pozicija2Pixel(obj_cursor.pozicija)+trajanje2Pixel(obj_cursor.trajanje),ton2Pixel(obj_cursor.ton),obj_cursor.sprite)
-                          #pygame.display.flip()
-                          #input()
                       else:
                         for pozicija in range(0, max_doba, obj_cursor.trajanje+1):
                           obj_cursor.pozicija = pozicija
                           zastava_dodaj = 0
                           for nota in lista_nota:
-                            #blit_cursor(pozicija2Pixel(obj_cursor.pozicija),ton2Pixel(obj_cursor.ton),pozicija2Pixel(obj_cursor.pozicija)+trajanje2Pixel(obj_cursor.trajanje),ton2Pixel(obj_cursor.ton),obj_cursor.sprite)
-                            #pygame.display.flip()
-                            #input("nota: " + str(nota.pozicija) + ", cursor_pozicija: " + str(obj_cursor.pozicija) +  ", trajanje: " + str( obj_cursor.trajanje ))
                             if checkXColision(nota, obj_cursor.pozicija, obj_cursor.trajanje):
                               zastava_dodaj += 1
                           if zastava_dodaj == 0:
                             lista_nota.append(dodaj_notu(obj_cursor.pozicija, obj_cursor.ton, obj_cursor.trajanje, 3))
                             print("dodajem notu na poziciju "+str(obj_cursor.pozicija))
-                    obj_cursor.pozicija, obj_cursor.ton, obj_cursor.trajanje = swap_cursor
+                    #obj_cursor.pozicija, obj_cursor.ton, obj_cursor.trajanje = swap_cursor
 
                 if event.key == pygame.K_c:
                   text_file = open("output.ly", "w")
@@ -271,7 +253,7 @@ while not crashed:
                     zastava_delete=0
                     for i,y in enumerate(list(lista_nota)):
                         #print(i,y.pozicija)
-                        if brisiNotu(y, pixel2Pozicija(pozicija2Pixel(obj_cursor.pozicija)+bg_scroll_x), obj_cursor.trajanje):
+                        if brisiNotu(y, obj_cursor.pozicija, obj_cursor.trajanje):
                             print("brisi" + str(i))
                             lista_nota.pop(i-zastava_delete)
                             zastava_delete +=1
@@ -292,14 +274,14 @@ while not crashed:
                     if lista_nota:
                         zastava_return = 0 #zastava je zbog brisanja iz liste
                         for i in lista_nota:
-                            if checkXColision(i,pixel2Pozicija(pozicija2Pixel(obj_cursor.pozicija)+bg_scroll_x), obj_cursor.trajanje):
+                            if checkXColision(i,obj_cursor.pozicija, obj_cursor.trajanje):
                                 zastava_return += 1
                         if zastava_return:
                             obj_cursor.sprite = 2
                         else:
-                            lista_nota.append(dodaj_notu(pixel2Pozicija(pozicija2Pixel(obj_cursor.pozicija)+bg_scroll_x), pixel2Ton(ton2Pixel(obj_cursor.ton)-bg_scroll_y), obj_cursor.trajanje, 1))
+                            lista_nota.append(dodaj_notu(obj_cursor.pozicija, obj_cursor.ton, obj_cursor.trajanje, 1))
                     else:
-                        lista_nota.append(dodaj_notu(pixel2Pozicija(pozicija2Pixel(obj_cursor.pozicija)+bg_scroll_x), pixel2Ton(ton2Pixel(obj_cursor.ton)-bg_scroll_y), obj_cursor.trajanje, 1))
+                        lista_nota.append(dodaj_notu(obj_cursor.pozicija, obj_cursor.ton, obj_cursor.trajanje, 1))
 
 #Keyboard buttons with LCTRL as mod    
             if ((pygame.key.get_mods() & pygame.KMOD_LCTRL)):
@@ -316,30 +298,30 @@ while not crashed:
                     if lista_nota:
                         zastava_return = 0 #zastava je zbog brisanja iz liste
                         for i in lista_nota:
-                            if checkXColision(i,pixel2Pozicija(pozicija2Pixel(obj_cursor.pozicija)+bg_scroll_x), obj_cursor.trajanje):
+                            if checkXColision(i,obj_cursor.pozicija, obj_cursor.trajanje):
                                 zastava_return += 1
                         if zastava_return:
                             obj_cursor.sprite = 2
                         else:
-                            lista_nota.append(dodaj_notu(pixel2Pozicija(pozicija2Pixel(obj_cursor.pozicija)+bg_scroll_x), pixel2Ton(ton2Pixel(obj_cursor.ton)-bg_scroll_y), obj_cursor.trajanje, 2))
+                            lista_nota.append(dodaj_notu(obj_cursor.pozicija, obj_cursor.ton, obj_cursor.trajanje, 2))
                     else:
-                        lista_nota.append(dodaj_notu(pixel2Pozicija(pozicija2Pixel(obj_cursor.pozicija)+bg_scroll_x), pixel2Ton(ton2Pixel(obj_cursor.ton)-bg_scroll_y), obj_cursor.trajanje, 2))
+                        lista_nota.append(dodaj_notu(obj_cursor.pozicija, obj_cursor.ton, obj_cursor.trajanje, 2))
 
 #Keyboard buttons with LALT as mod    
             if pygame.key.get_mods() & pygame.KMOD_LALT:
                 obj_cursor.sprite = 1
                 if event.key == pygame.K_UP:
                     print("LALT+K_UP")
-                    bg_scroll_y +=3
+                    obj_cursor.bg_scroll_y_offset +=3
                 if event.key == pygame.K_DOWN:
                     print("LALT+K_DOWN")
-                    bg_scroll_y -=3
+                    obj_cursor.bg_scroll_y_offset -=3
                 if event.key == pygame.K_LEFT:
                     print("LALT+K_LEFT")
-                    bg_scroll_x -=6
+                    obj_cursor.bg_scroll_x_offset -=6
                 if event.key == pygame.K_RIGHT:
                     print("LALT+K_RIGHT")
-                    bg_scroll_x +=6
+                    obj_cursor.bg_scroll_x_offset +=6
 
         if event.type == pygame.KEYUP:
             if pygame.key.get_mods()==0 & pygame.KMOD_LSHIFT:
@@ -348,28 +330,42 @@ while not crashed:
                 #left = 0
                 #right = 0
 
+    #racunanje bg_scroll-a
+    #pozicija cursora u svakom trenutku ovisno na okvir screen-a
+    #obj_cursor_y
+    #(obj_cursor.bg_scroll_y_offset / 3)
+    #obj_cursor.bg_scroll_y
+    obj_cursor_y = obj_cursor.ton - 20
+    if obj_cursor_y > 5:
+        obj_cursor.bg_scroll_y = (obj_cursor_y * 3) + obj_cursor.bg_scroll_y_offset - (5*3)
+    if (obj_cursor_y-(obj_cursor.bg_scroll_y/3)) > 13:
+        obj_cursor.ton -= 1
+
+
+    #obj_cursor.bg_scroll_x = obj_cursor.pozicija * 6 + obj_cursor.bg_scroll_x_offset
+
     #flipanje
     screen.fill(color_white)
-    blit_prvi_takt(18-bg_scroll_x,bg_scroll_y-15+30)
+    blit_prvi_takt(18-obj_cursor.bg_scroll_x,obj_cursor.bg_scroll_y-15+30)
 
-    #if drugi_takt_lijevi-bg_scroll_x < 67:
+    #if drugi_takt_lijevi-obj_cursor.bg_scroll_x < 67:
     for i in range(0, broj_taktova):
-      blit_drugi_takt(drugi_takt_desni+i*96-bg_scroll_x,bg_scroll_y-15+30)
+      blit_drugi_takt(drugi_takt_desni+i*96-obj_cursor.bg_scroll_x,obj_cursor.bg_scroll_y-15+30)
 
-    blit_zadnji_takt(drugi_takt_desni+broj_taktova*96-bg_scroll_x,bg_scroll_y-15+30)
+    blit_zadnji_takt(drugi_takt_desni+broj_taktova*96-obj_cursor.bg_scroll_x,obj_cursor.bg_scroll_y-15+30)
 
 
     for i in lista_nota:
-        pygame.draw.rect(screen, lista_boja[i.predikat*2], [(pozicija2Pixel(i.pozicija)+2-bg_scroll_x)*display_scale_factor,(ton2Pixel(i.ton)+2+bg_scroll_y)*display_scale_factor,(trajanje2Pixel(i.trajanje)-1)*display_scale_factor,3*display_scale_factor] )
-        pygame.draw.rect(screen, lista_boja[i.predikat*2+1], [(pozicija2Pixel(i.pozicija)+3-bg_scroll_x)*display_scale_factor,(ton2Pixel(i.ton)+3+bg_scroll_y)*display_scale_factor,(trajanje2Pixel(i.trajanje)-3)*display_scale_factor,(3-2)*display_scale_factor] )
+        pygame.draw.rect(screen, lista_boja[i.predikat*2], [(pozicija2Pixel(i.pozicija)+2-obj_cursor.bg_scroll_x)*display_scale_factor,(ton2Pixel(i.ton)+2+obj_cursor.bg_scroll_y)*display_scale_factor,(trajanje2Pixel(i.trajanje)-1)*display_scale_factor,3*display_scale_factor] )
+        pygame.draw.rect(screen, lista_boja[i.predikat*2+1], [(pozicija2Pixel(i.pozicija)+3-obj_cursor.bg_scroll_x)*display_scale_factor,(ton2Pixel(i.ton)+3+obj_cursor.bg_scroll_y)*display_scale_factor,(trajanje2Pixel(i.trajanje)-3)*display_scale_factor,(3-2)*display_scale_factor] )
 
-    blit_cursor(pozicija2Pixel(obj_cursor.pozicija),ton2Pixel(obj_cursor.ton),pozicija2Pixel(obj_cursor.pozicija)+trajanje2Pixel(obj_cursor.trajanje),ton2Pixel(obj_cursor.ton),obj_cursor.sprite)
+    blit_cursor(pozicija2Pixel(obj_cursor.pozicija)-obj_cursor.bg_scroll_x,ton2Pixel(obj_cursor.ton)+obj_cursor.bg_scroll_y,pozicija2Pixel(obj_cursor.pozicija)+trajanje2Pixel(obj_cursor.trajanje)-obj_cursor.bg_scroll_x,ton2Pixel(obj_cursor.ton)+obj_cursor.bg_scroll_y,obj_cursor.sprite)
 
-    for i,j in enumerate(kljucevi[pixel2Ton(ton2Pixel(obj_cursor.ton)-bg_scroll_y)][0] + kljucevi[pixel2Ton(ton2Pixel(obj_cursor.ton)-bg_scroll_y)][1] + rijecnikNotnihVrijednosti[obj_cursor.trajanje]):
+    for i,j in enumerate(kljucevi[obj_cursor.ton][0] + kljucevi[obj_cursor.ton][1] + rijecnikNotnihVrijednosti[obj_cursor.trajanje]):
         blit_slovo((i*4)+20,90-5,slovoPozicija(j))
 
     #plavi okvir
-    blit_kljucevi(0,-15+bg_scroll_y)
+    blit_kljucevi(0,-15+obj_cursor.bg_scroll_y)
     blit_rub(0,0)
     pygame.display.flip()
     clock.tick(60)

@@ -130,7 +130,11 @@ class cursor(object):
     self.pozicija = pozicija
     self.ton = ton
     self.trajanje = trajanje
-    self.sprite=0
+    self.sprite = 0
+    self.bg_scroll_x = 0
+    self.bg_scroll_y = 0
+    self.bg_scroll_x_offset = 0 #used for cursor follow efect
+    self.bg_scroll_y_offset = 0 #used for cursor follow efect
 
 def checkXColision(nota, cursorLeft, trajanje):
   if ( nota.pozicija == cursorLeft):
