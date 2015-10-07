@@ -170,24 +170,24 @@ def checkXColision(nota, cursorLeft, trajanje):
 def findNote(nota, cursorLeft, trajanje):
   if ( nota.pozicija == cursorLeft):
     print("na pocetku note s CL")
-    return(True)
+    return(1)
   elif ( cursorLeft > nota.pozicija ) & ( cursorLeft < ( nota.pozicija + nota.trajanje )):
     print("na sredini note s CL")
-    return(True)
+    return(2)
   elif ( cursorLeft == ( nota.pozicija + nota.trajanje )):
     print("na kraju note s CL")
-    return(True)
+    return(3)
   elif ( nota.pozicija == ( cursorLeft + trajanje)):
     print("na pocetku note s CR")
-    return(True)
+    return(4)
   elif ( ( cursorLeft + trajanje ) > nota.pozicija ) & ( ( cursorLeft + trajanje ) < ( nota.pozicija + nota.trajanje )):
     print("na sredini note sa CR")
-    return(True)
+    return(5)
   elif ( ( cursorLeft + trajanje ) == ( nota.pozicija + nota.trajanje )):
     print("na kraju note s CR")
-    return(True)
+    return(6)
   elif ( ( cursorLeft < nota.pozicija ) & ( ( cursorLeft + trajanje ) > (nota.pozicija + nota.trajanje ))):
     print("note unutar Cursora")
-    return(True)
+    return(7)
   else:
     return(False)

@@ -256,7 +256,7 @@ while not crashed:
                 if event.key == pygame.K_BACKQUOTE:
                     for i,y in enumerate(list(lista_nota)): #prolazi kroz sve note i broji po redu
                         #print(i,y.pozicija)
-                        if findNote(y, obj_cursor.pozicija, obj_cursor.trajanje):
+                        if findNote(y, obj_cursor.pozicija, obj_cursor.trajanje) in (1,2,3):
                             if lista_nota[i].ligatura == False:
                               print("ligatura +" + str(i))
                               lista_nota[i].ligatura=True
@@ -264,6 +264,20 @@ while not crashed:
                               print("ligatura -" + str(i))
                               lista_nota[i].ligatura=False
                             print(lista_nota[i].ligatura)
+
+                #split note at left cursor with added ligature
+                if event.key == pygame.K_s:
+                    for i,y in enumerate(list(lista_nota)): #prolazi kroz sve note i broji po redu
+                        #print(i,y.pozicija)
+                        if findNote(y, obj_cursor.pozicija, obj_cursor.trajanje) in (2,3):
+                            swap_trajanje = (y.pozicija + y.trajanje) - obj_cursor.pozicija
+                            swap_ligatura = y.ligatura
+                            y.trajanje =  obj_cursor.pozicija - y.pozicija - 1
+                            y.ligatura = True
+                            lista_nota.append(dodaj_notu(obj_cursor.pozicija, y.ton, swap_trajanje , 0))
+                            if swap_ligatura:
+                                lista_nota[-1].ligatura = True
+
 
 #Keyboard buttons with LSHIFT as mod    
             if pygame.key.get_mods() & pygame.KMOD_LSHIFT:
