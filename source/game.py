@@ -278,6 +278,25 @@ while not crashed:
                             if swap_ligatura:
                                 lista_nota[-1].ligatura = True
 
+                #join note at left cursor with removing ligature
+                if event.key == pygame.K_j:
+                    for y in lista_nota: #prolazi kroz sve note i broji po redu
+                        #print(i,y.pozicija)
+                        if (findNote(y, obj_cursor.pozicija, obj_cursor.trajanje) in (1,2,3)) and y.ligatura:
+                            for i,x in enumerate(list(lista_nota)):
+                                if (y.pozicija + y.trajanje + 1 == x.pozicija) and (y.ton == x.ton):
+                                    swap_trajanje = x.pozicija + x.trajanje
+                                    y.trajanje = x.pozicija + x.trajanje - y.pozicija
+                                    y.ligatura = x.ligatura
+                                    print(i)
+                                    lista_nota.pop(i)
+                                    break
+
+                if event.key == pygame.K_c:
+                    for i,y in enumerate(list(lista_nota)): #prolazi kroz sve note i broji po redu
+                        #print(i,y.pozicija)
+                        if findNote(y, obj_cursor.pozicija, obj_cursor.trajanje) in (2,3):
+                            y.trajanje =  obj_cursor.pozicija - y.pozicija - 1
 
 #Keyboard buttons with LSHIFT as mod    
             if pygame.key.get_mods() & pygame.KMOD_LSHIFT:
