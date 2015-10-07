@@ -124,6 +124,7 @@ class dodaj_notu(object):
     self.ton=ton
     self.trajanje=trajanje
     self.predikat=predikat
+    self.ligatura=False
 
 class cursor(object):
   def __init__(self, pozicija, ton, trajanje):
@@ -166,27 +167,27 @@ def checkXColision(nota, cursorLeft, trajanje):
 #sortiraj listu klasa
 #lista.sort(key=operator.attrgetter('broj'))
 
-def brisiNotu(nota, cursorLeft, trajanje):
+def findNote(nota, cursorLeft, trajanje):
   if ( nota.pozicija == cursorLeft):
-    print("brisanje na pocetku note s CL")
+    print("na pocetku note s CL")
     return(True)
   elif ( cursorLeft > nota.pozicija ) & ( cursorLeft < ( nota.pozicija + nota.trajanje )):
-    print("brisanje na sredini note s CL")
+    print("na sredini note s CL")
     return(True)
   elif ( cursorLeft == ( nota.pozicija + nota.trajanje )):
-    print("brisanje na kraju note s CL")
+    print("na kraju note s CL")
     return(True)
   elif ( nota.pozicija == ( cursorLeft + trajanje)):
-    print("brisanje na pocetku note s CR")
+    print("na pocetku note s CR")
     return(True)
   elif ( ( cursorLeft + trajanje ) > nota.pozicija ) & ( ( cursorLeft + trajanje ) < ( nota.pozicija + nota.trajanje )):
-    print("brisanje na sredini note sa CR")
+    print("na sredini note sa CR")
     return(True)
   elif ( ( cursorLeft + trajanje ) == ( nota.pozicija + nota.trajanje )):
-    print("brisanje na kraju note s CR")
+    print("na kraju note s CR")
     return(True)
   elif ( ( cursorLeft < nota.pozicija ) & ( ( cursorLeft + trajanje ) > (nota.pozicija + nota.trajanje ))):
-    print("brisanje note unutar Cursora")
+    print("note unutar Cursora")
     return(True)
   else:
     return(False)

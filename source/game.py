@@ -245,12 +245,25 @@ while not crashed:
 
                 if event.key == pygame.K_d:
                     zastava_delete=0
-                    for i,y in enumerate(list(lista_nota)):
+                    for i,y in enumerate(list(lista_nota)): #prolazi kroz sve note i broji po redu
                         #print(i,y.pozicija)
-                        if brisiNotu(y, obj_cursor.pozicija, obj_cursor.trajanje):
+                        if findNote(y, obj_cursor.pozicija, obj_cursor.trajanje):
                             print("brisi" + str(i))
                             lista_nota.pop(i-zastava_delete)
                             zastava_delete +=1
+
+                #add and remove ligature
+                if event.key == pygame.K_BACKQUOTE:
+                    for i,y in enumerate(list(lista_nota)): #prolazi kroz sve note i broji po redu
+                        #print(i,y.pozicija)
+                        if findNote(y, obj_cursor.pozicija, obj_cursor.trajanje):
+                            if lista_nota[i].ligatura == False:
+                              print("ligatura +" + str(i))
+                              lista_nota[i].ligatura=True
+                            else:
+                              print("ligatura -" + str(i))
+                              lista_nota[i].ligatura=False
+                            print(lista_nota[i].ligatura)
 
 #Keyboard buttons with LSHIFT as mod    
             if pygame.key.get_mods() & pygame.KMOD_LSHIFT:
@@ -367,6 +380,14 @@ while not crashed:
     for i in lista_nota:
         pygame.draw.rect(screen, lista_boja[i.predikat*2], [(pozicija2Pixel(i.pozicija)+2-bg_scroll_x)*display_scale_factor,(ton2Pixel(i.ton)+2+bg_scroll_y)*display_scale_factor,(trajanje2Pixel(i.trajanje)-1)*display_scale_factor,3*display_scale_factor] )
         pygame.draw.rect(screen, lista_boja[i.predikat*2+1], [(pozicija2Pixel(i.pozicija)+3-bg_scroll_x)*display_scale_factor,(ton2Pixel(i.ton)+3+bg_scroll_y)*display_scale_factor,(trajanje2Pixel(i.trajanje)-3)*display_scale_factor,(3-2)*display_scale_factor] )
+        #show ligatures
+        if i.ligatura == True:
+            if [x for x in lista_nota if ((x.pozicija == (i.pozicija + i.trajanje + 1)) and (x.ton == i.ton))]:
+                pygame.draw.rect(screen, lista_boja[i.predikat*2], [(pozicija2Pixel(i.pozicija)+2-bg_scroll_x+trajanje2Pixel(i.trajanje)-1)*display_scale_factor,(ton2Pixel(i.ton)+2+bg_scroll_y+1)*display_scale_factor,3*display_scale_factor,1*display_scale_factor] )
+            else:
+                pygame.draw.rect(screen, lista_boja[i.predikat*2], [(pozicija2Pixel(i.pozicija)+2-bg_scroll_x+trajanje2Pixel(i.trajanje)-1)*display_scale_factor,(ton2Pixel(i.ton)+2+bg_scroll_y+1)*display_scale_factor,1*display_scale_factor,1*display_scale_factor] )
+
+
 
     blit_cursor(pozicija2Pixel(obj_cursor.pozicija)-bg_scroll_x,ton2Pixel(obj_cursor.ton)+bg_scroll_y,pozicija2Pixel(obj_cursor.pozicija)+trajanje2Pixel(obj_cursor.trajanje)-bg_scroll_x,ton2Pixel(obj_cursor.ton)+bg_scroll_y,obj_cursor.sprite)
 
