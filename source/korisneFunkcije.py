@@ -14,6 +14,12 @@ def pixel2Ton(pixel):
   height = 3
   broj = ( rezolucija - pixel - indent ) / height
   return(int(broj))
+
+predikati = {
+    0 : 0,
+    1 : -1,
+    2 : 1
+}
   
 kljucevi = {
         0 : ("d", ",,"),

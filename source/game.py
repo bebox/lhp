@@ -22,7 +22,7 @@ color_black = (0,0,0)
 color_white = (255,255,255)
 
 boja_note_vani = (113, 50, 255)
-boja_note_nutra = (0, 0, 255)
+boja_note_nutra = (203, 139, 57)
 
 boja_note_povisilica_vani = (0, 255, 255)
 boja_note_povisilica_nutra = (0, 255, 255)
@@ -274,7 +274,7 @@ while not crashed:
                             swap_ligatura = y.ligatura
                             y.trajanje =  obj_cursor.pozicija - y.pozicija - 1
                             y.ligatura = True
-                            lista_nota.append(dodaj_notu(obj_cursor.pozicija, y.ton, swap_trajanje , 0))
+                            lista_nota.append(dodaj_notu(obj_cursor.pozicija, y.ton, swap_trajanje , y.predikat))
                             if swap_ligatura:
                                 lista_nota[-1].ligatura = True
 
@@ -284,7 +284,7 @@ while not crashed:
                         #print(i,y.pozicija)
                         if (findNote(y, obj_cursor.pozicija, obj_cursor.trajanje) in (1,2,3)) and y.ligatura:
                             for i,x in enumerate(list(lista_nota)):
-                                if (y.pozicija + y.trajanje + 1 == x.pozicija) and (y.ton == x.ton):
+                                if (y.pozicija + y.trajanje + 1 == x.pozicija) and (y.ton == x.ton) and (y.predikat == x.predikat):
                                     swap_trajanje = x.pozicija + x.trajanje
                                     y.trajanje = x.pozicija + x.trajanje - y.pozicija
                                     y.ligatura = x.ligatura
@@ -297,6 +297,11 @@ while not crashed:
                         #print(i,y.pozicija)
                         if findNote(y, obj_cursor.pozicija, obj_cursor.trajanje) in (2,3):
                             y.trajanje =  obj_cursor.pozicija - y.pozicija - 1
+
+                #w Move forward to the beginning of a word.
+                #if event.key == pygame.K_w:
+                #    for i,y in enumerate(list(lista_nota)): #prolazi kroz sve note i broji po redu
+                #        print(i,y.pozicija)
 
 #Keyboard buttons with LSHIFT as mod    
             if pygame.key.get_mods() & pygame.KMOD_LSHIFT:
@@ -411,14 +416,14 @@ while not crashed:
 
 
     for i in lista_nota:
-        pygame.draw.rect(screen, lista_boja[i.predikat*2], [(pozicija2Pixel(i.pozicija)+2-bg_scroll_x)*display_scale_factor,(ton2Pixel(i.ton)+2+bg_scroll_y)*display_scale_factor,(trajanje2Pixel(i.trajanje)-1)*display_scale_factor,3*display_scale_factor] )
-        pygame.draw.rect(screen, lista_boja[i.predikat*2+1], [(pozicija2Pixel(i.pozicija)+3-bg_scroll_x)*display_scale_factor,(ton2Pixel(i.ton)+3+bg_scroll_y)*display_scale_factor,(trajanje2Pixel(i.trajanje)-3)*display_scale_factor,(3-2)*display_scale_factor] )
+        pygame.draw.rect(screen, boja_note_vani, [(pozicija2Pixel(i.pozicija)+2-bg_scroll_x)*display_scale_factor,(ton2Pixel(i.ton)+2+bg_scroll_y)*display_scale_factor,(trajanje2Pixel(i.trajanje)-1)*display_scale_factor,3*display_scale_factor] )
+        pygame.draw.rect(screen, boja_note_nutra, [(pozicija2Pixel(i.pozicija)+3-bg_scroll_x)*display_scale_factor,(ton2Pixel(i.ton)+3+bg_scroll_y+predikati[i.predikat])*display_scale_factor,(trajanje2Pixel(i.trajanje)-3)*display_scale_factor,(3-2)*display_scale_factor] )
         #show ligatures
         if i.ligatura == True:
-            if [x for x in lista_nota if ((x.pozicija == (i.pozicija + i.trajanje + 1)) and (x.ton == i.ton))]:
-                pygame.draw.rect(screen, lista_boja[i.predikat*2], [(pozicija2Pixel(i.pozicija)+2-bg_scroll_x+trajanje2Pixel(i.trajanje)-1)*display_scale_factor,(ton2Pixel(i.ton)+2+bg_scroll_y+1)*display_scale_factor,3*display_scale_factor,1*display_scale_factor] )
+            if [x for x in lista_nota if ((x.pozicija == (i.pozicija + i.trajanje + 1)) and (x.ton == i.ton) and (x.predikat == i.predikat))]:
+                pygame.draw.rect(screen, boja_note_vani, [(pozicija2Pixel(i.pozicija)+2-bg_scroll_x+trajanje2Pixel(i.trajanje)-1)*display_scale_factor,(ton2Pixel(i.ton)+2+bg_scroll_y+1)*display_scale_factor,3*display_scale_factor,1*display_scale_factor] )
             else:
-                pygame.draw.rect(screen, lista_boja[i.predikat*2], [(pozicija2Pixel(i.pozicija)+2-bg_scroll_x+trajanje2Pixel(i.trajanje)-1)*display_scale_factor,(ton2Pixel(i.ton)+2+bg_scroll_y+1)*display_scale_factor,1*display_scale_factor,1*display_scale_factor] )
+                pygame.draw.rect(screen, boja_note_vani, [(pozicija2Pixel(i.pozicija)+2-bg_scroll_x+trajanje2Pixel(i.trajanje)-1)*display_scale_factor,(ton2Pixel(i.ton)+2+bg_scroll_y+1)*display_scale_factor,1*display_scale_factor,1*display_scale_factor] )
 
 
 
