@@ -298,10 +298,29 @@ while not crashed:
                         if findNote(y, obj_cursor.pozicija, obj_cursor.trajanje) in (2,3):
                             y.trajanje =  obj_cursor.pozicija - y.pozicija - 1
 
-                #w Move forward to the beginning of a word.
-                #if event.key == pygame.K_w:
-                #    for i,y in enumerate(list(lista_nota)): #prolazi kroz sve note i broji po redu
-                #        print(i,y.pozicija)
+                #vim moving around http://vim.wikia.com/wiki/Moving_around
+
+                #w: Move forward to the beginning of a word.
+                if event.key == pygame.K_w:
+                    x = [ (i.pozicija,i.ton) for i in lista_nota if i.pozicija > obj_cursor.pozicija ]
+                    if x:
+                        obj_cursor.pozicija, obj_cursor.ton = min(x, key = lambda t: t[0])
+
+                #b: Move backward to the beginning of a word.
+                if event.key == pygame.K_b:
+                    x = [ (i.pozicija,i.ton) for i in lista_nota if i.pozicija < obj_cursor.pozicija ]
+                    if x:
+                        obj_cursor.pozicija, obj_cursor.ton = max(x, key = lambda t: t[0])
+
+                #e: Move to the end of a word.
+                if event.key == pygame.K_e:
+                    for i,y in enumerate(list(lista_nota)): #prolazi kroz sve note i broji po redu
+                        if findNote(y, obj_cursor.pozicija, obj_cursor.trajanje) in (1,2):
+                            obj_cursor.pozicija = y.pozicija + y.trajanje
+
+                    #x = [ (i.pozicija,i.ton) for i in lista_nota if i.pozicija < obj_cursor.pozicija ]
+                    #if x:
+                    #    obj_cursor.pozicija, obj_cursor.ton = max(x, key = lambda t: t[0])
 
 #Keyboard buttons with LSHIFT as mod    
             if pygame.key.get_mods() & pygame.KMOD_LSHIFT:
