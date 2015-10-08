@@ -18,7 +18,8 @@ def pixel2Ton(pixel):
 predikati = {
     0 : 0,
     1 : -1,
-    2 : 1
+    2 : 1,
+    3 : 0
 }
   
 kljucevi = {

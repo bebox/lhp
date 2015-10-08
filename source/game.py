@@ -33,7 +33,7 @@ boja_note_snizilica_nutra = (255, 0, 255)
 boja_pauze_vani = (0, 148, 0)
 boja_pauze_nutra = (48, 212, 0)
 
-lista_boja = [boja_note_vani, boja_note_nutra, boja_note_povisilica_vani, boja_note_povisilica_nutra, boja_note_snizilica_vani, boja_note_snizilica_nutra, boja_pauze_vani, boja_pauze_nutra]
+lista_boja = [boja_note_vani, boja_note_nutra, boja_note_vani, boja_note_nutra, boja_note_vani, boja_note_nutra, boja_pauze_vani, boja_pauze_nutra]
 
 #pygame clock
 clock = pygame.time.Clock()
@@ -217,9 +217,11 @@ while not crashed:
                             print("dodajem notu na poziciju "+str(obj_cursor.pozicija))
                     #obj_cursor.pozicija, obj_cursor.ton, obj_cursor.trajanje = swap_cursor
 
-                if event.key == pygame.K_c:
+                if event.key == pygame.K_l:
+                  print("making lilypond output")
                   text_file = open("output.ly", "w")
                   lista_nota.sort(key=operator.attrgetter('pozicija'))
+                  print("\\language \"deutsch\"", file=text_file)
                   print("{", file=text_file)
                   for nota in lista_nota:
                     if nota.pozicija%16 == 0 and nota.pozicija != 0:
@@ -240,6 +242,9 @@ while not crashed:
                         print( "es" + kljucevi[nota.ton][1]  + "" + rijecnikNotnihVrijednosti[nota.trajanje], end=" ", file=text_file)
                     elif nota.predikat == 3:
                       print("r" + rijecnikNotnihVrijednosti[nota.trajanje], end=" ", file=text_file)
+                    if nota.ligatura == True:
+                      print( "~", end=" ", file=text_file)
+                      
                   print("\\bar \"|.\" }", file=text_file)
                   text_file.close()
 
@@ -435,8 +440,8 @@ while not crashed:
 
 
     for i in lista_nota:
-        pygame.draw.rect(screen, boja_note_vani, [(pozicija2Pixel(i.pozicija)+2-bg_scroll_x)*display_scale_factor,(ton2Pixel(i.ton)+2+bg_scroll_y)*display_scale_factor,(trajanje2Pixel(i.trajanje)-1)*display_scale_factor,3*display_scale_factor] )
-        pygame.draw.rect(screen, boja_note_nutra, [(pozicija2Pixel(i.pozicija)+3-bg_scroll_x)*display_scale_factor,(ton2Pixel(i.ton)+3+bg_scroll_y+predikati[i.predikat])*display_scale_factor,(trajanje2Pixel(i.trajanje)-3)*display_scale_factor,(3-2)*display_scale_factor] )
+        pygame.draw.rect(screen, lista_boja[i.predikat*2], [(pozicija2Pixel(i.pozicija)+2-bg_scroll_x)*display_scale_factor,(ton2Pixel(i.ton)+2+bg_scroll_y)*display_scale_factor,(trajanje2Pixel(i.trajanje)-1)*display_scale_factor,3*display_scale_factor] )
+        pygame.draw.rect(screen, lista_boja[i.predikat*2+1], [(pozicija2Pixel(i.pozicija)+3-bg_scroll_x)*display_scale_factor,(ton2Pixel(i.ton)+3+bg_scroll_y+predikati[i.predikat])*display_scale_factor,(trajanje2Pixel(i.trajanje)-3)*display_scale_factor,(3-2)*display_scale_factor] )
         #show ligatures
         if i.ligatura == True:
             if [x for x in lista_nota if ((x.pozicija == (i.pozicija + i.trajanje + 1)) and (x.ton == i.ton) and (x.predikat == i.predikat))]:
