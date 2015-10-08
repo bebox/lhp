@@ -4,6 +4,7 @@ import pygame_sdl2 as pygame
 from pygame_sdl2.locals import *
 from korisneFunkcije import *
 import operator
+import pickle
 
 pygame.init()
 
@@ -375,6 +376,16 @@ while not crashed:
                             lista_nota.append(dodaj_notu(obj_cursor.pozicija, obj_cursor.ton, obj_cursor.trajanje, 2))
                     else:
                         lista_nota.append(dodaj_notu(obj_cursor.pozicija, obj_cursor.ton, obj_cursor.trajanje, 2))
+
+                #save project to file
+                if event.key == pygame.K_s:
+                    pickle.dump(lista_nota, open( "save.lhp", "wb" ))
+                    print("save")
+
+                #load project from file
+                if event.key == pygame.K_l:
+                    lista_nota = pickle.load(open( "save.lhp", "rb" ))
+                    print("load")
 
 #Keyboard buttons with LALT as mod    
             if pygame.key.get_mods() & pygame.KMOD_LALT:
