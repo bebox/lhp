@@ -134,19 +134,28 @@ while not crashed:
                 if event.key == pygame.K_DOWN:
                     if obj_cursor.ton > 0:
                         obj_cursor.ton -= 1
+
+                if event.key == pygame.K_y:
+                    print(obj_cursor.apsolute_y)
+                    print(obj_cursor.bg_scroll_y)
+
+
                 if event.key == pygame.K_RETURN:
+                    #if list is not empty
                     if lista_nota:
-                        zastava_return = 0 #zastava je zbog brisanja iz liste
-                        for i in lista_nota:
-                            if checkXColision(i,obj_cursor.pozicija, obj_cursor.trajanje):
-                                zastava_return += 1
-                        if zastava_return:
-                            obj_cursor.sprite = 2
+                        x = [i for i in lista_nota if findNote(i,obj_cursor.pozicija, obj_cursor.trajanje)]
+                        #if notes in way
+                        if x:
+                            if ((obj_cursor.ton not in [y.ton for y in x]) and all(obj_cursor.pozicija == y.pozicija for y in x) and all(obj_cursor.trajanje == y.trajanje for y in x)):
+                                lista_nota.append(dodaj_notu(obj_cursor.pozicija, obj_cursor.ton, obj_cursor.trajanje, 0))
+                            else:
+                                obj_cursor.sprite = 2
+                        #if no note in way
                         else:
                             lista_nota.append(dodaj_notu(obj_cursor.pozicija, obj_cursor.ton, obj_cursor.trajanje, 0))
+                    #if list jet is empty first time only
                     else:
                         lista_nota.append(dodaj_notu(obj_cursor.pozicija, obj_cursor.ton, obj_cursor.trajanje, 0))
-                #if event.key == pygame.K_DELETE:
 
                 if event.key == pygame.K_1:
                     obj_cursor.trajanje = 15
@@ -219,44 +228,89 @@ while not crashed:
                     #obj_cursor.pozicija, obj_cursor.ton, obj_cursor.trajanje = swap_cursor
 
                 if event.key == pygame.K_l:
-                  print("making lilypond output")
-                  text_file = open("output.ly", "w")
-                  lista_nota.sort(key=operator.attrgetter('pozicija'))
-                  print("\\language \"deutsch\"", file=text_file)
-                  print("{", file=text_file)
-                  for nota in lista_nota:
-                    if nota.pozicija%16 == 0 and nota.pozicija != 0:
-                      print("|", file=text_file)
-                    #predikat = 0
-                    if nota.predikat == 0:
-                      print(kljucevi[nota.ton][0] + kljucevi[nota.ton][1]  + "" + rijecnikNotnihVrijednosti[nota.trajanje], end=" ", file=text_file)
-                    #predikat = 1, aka povisilica
-                    elif nota.predikat == 1:
-                      print(kljucevi[nota.ton][0] + "is" + kljucevi[nota.ton][1]  + "" + rijecnikNotnihVrijednosti[nota.trajanje], end=" ", file=text_file)
-                    #predikat = 2, aka snizilica
-                    elif nota.predikat == 2:
-                      if kljucevi[nota.ton][0] == "h":
-                        print("b" + kljucevi[nota.ton][1]  + "" + rijecnikNotnihVrijednosti[nota.trajanje], end=" ", file=text_file)
-                      elif kljucevi[nota.ton][0] == "a":
-                        print("as" + kljucevi[nota.ton][1]  + "" + rijecnikNotnihVrijednosti[nota.trajanje], end=" ", file=text_file)
-                      elif kljucevi[nota.ton][0] == "e":
-                        print( "es" + kljucevi[nota.ton][1]  + "" + rijecnikNotnihVrijednosti[nota.trajanje], end=" ", file=text_file)
-                    elif nota.predikat == 3:
-                      print("r" + rijecnikNotnihVrijednosti[nota.trajanje], end=" ", file=text_file)
-                    if nota.ligatura == True:
-                      print( "~", end=" ", file=text_file)
-                      
-                  print("\\bar \"|.\" }", file=text_file)
-                  text_file.close()
+                    print("making lilypond output")
+                    text_file = open("output.ly", "w")
+                    lista_nota.sort(key=operator.attrgetter('pozicija'))
+                    print("\\language \"deutsch\"", file=text_file)
+                    print("{", file=text_file)
+
+                    zastava = 0
+                    for nota in lista_nota:
+                        if zastava > 0:
+                            zastava -= 1
+                        else:
+
+                            #add bar line
+                            if nota.pozicija%16 == 0 and nota.pozicija != 0:
+                                print("|", file=text_file)
+
+                            x = [i for i in lista_nota if i.pozicija == nota.pozicija]
+                            print(len(x))
+                            #if chord
+                            if len(x) > 1:
+                                zastava = len(x)-1
+                                print("<", end="", file=text_file)
+                                for chord_note in x:
+                                    #add natural notes, predikat = 0
+                                    if chord_note.predikat == 0:
+                                        print(kljucevi[chord_note.ton][0] + kljucevi[chord_note.ton][1], end=" ", file=text_file)
+
+                                    #add sharp notes, predikat = 1
+                                    elif chord_note.predikat == 1:
+                                        print(kljucevi[chord_note.ton][0] + "is" + kljucevi[chord_note.ton][1], end=" ", file=text_file)
+
+                                    #add flat notes, predikat = 2
+                                    elif chord_note.predikat == 2:
+                                        if kljucevi[chord_note.ton][0] == "h":
+                                            print("b" + kljucevi[chord_note.ton][1], end=" ", file=text_file)
+                                        elif kljucevi[chord_note.ton][0] == "a":
+                                            print("as" + kljucevi[chord_note.ton][1], end=" ", file=text_file)
+                                        elif kljucevi[chord_note.ton][0] == "e":
+                                            print( "es" + kljucevi[chord_note.ton][1], end=" ", file=text_file)
+                                        else:
+                                            print( kljucevi[chord_note.ton][0] + "s" + kljucevi[chord_note.ton][1], end=" ", file=text_file)
+                                    #add tie by adding ~
+                                    if chord_note.ligatura == True:
+                                        print( "~", end=" ", file=text_file)
+                                print(">" + rijecnikNotnihVrijednosti[nota.trajanje], end=' ', file=text_file)
+
+                            #no chord tones
+                            elif len(x) == 1:
+                                #add natural notes, predikat = 0
+                                if nota.predikat == 0:
+                                    print(kljucevi[nota.ton][0] + kljucevi[nota.ton][1]  + "" + rijecnikNotnihVrijednosti[nota.trajanje], end=" ", file=text_file)
+
+                                #add sharp notes, predikat = 1
+                                elif nota.predikat == 1:
+                                    print(kljucevi[nota.ton][0] + "is" + kljucevi[nota.ton][1]  + "" + rijecnikNotnihVrijednosti[nota.trajanje], end=" ", file=text_file)
+
+                                #add flat notes, predikat = 2
+                                elif nota.predikat == 2:
+                                    if kljucevi[nota.ton][0] == "h":
+                                        print("b" + kljucevi[nota.ton][1]  + "" + rijecnikNotnihVrijednosti[nota.trajanje], end=" ", file=text_file)
+                                    elif kljucevi[nota.ton][0] == "a":
+                                        print("as" + kljucevi[nota.ton][1]  + "" + rijecnikNotnihVrijednosti[nota.trajanje], end=" ", file=text_file)
+                                    elif kljucevi[nota.ton][0] == "e":
+                                        print( "es" + kljucevi[nota.ton][1]  + "" + rijecnikNotnihVrijednosti[nota.trajanje], end=" ", file=text_file)
+
+                                #add rests, predikat = 3
+                                elif nota.predikat == 3:
+                                    print("r" + rijecnikNotnihVrijednosti[nota.trajanje], end=" ", file=text_file)
+
+                                #add tie by adding ~
+                                if nota.ligatura == True:
+                                    print( "~", end=" ", file=text_file)
+
+                    #add bar line at the end of the file
+                    print("\\bar \"|.\" }", file=text_file)
+                    text_file.close()
 
                 if event.key == pygame.K_d:
-                    zastava_delete=0
-                    for i,y in enumerate(list(lista_nota)): #prolazi kroz sve note i broji po redu
-                        #print(i,y.pozicija)
-                        if findNote(y, obj_cursor.pozicija, obj_cursor.trajanje):
-                            print("brisi" + str(i))
-                            lista_nota.pop(i-zastava_delete)
-                            zastava_delete +=1
+                    x =  [i for i in lista_nota if findNote(i,obj_cursor.pozicija, obj_cursor.trajanje)]
+                    if x:
+                        for i in x:
+                            if i in lista_nota and (obj_cursor.ton == i.ton):
+                                lista_nota.remove(i)
 
                 #add and remove ligature
                 if event.key == pygame.K_BACKQUOTE:
@@ -324,10 +378,6 @@ while not crashed:
                         if findNote(y, obj_cursor.pozicija, obj_cursor.trajanje) in (1,2):
                             obj_cursor.pozicija = y.pozicija + y.trajanje
 
-                    #x = [ (i.pozicija,i.ton) for i in lista_nota if i.pozicija < obj_cursor.pozicija ]
-                    #if x:
-                    #    obj_cursor.pozicija, obj_cursor.ton = max(x, key = lambda t: t[0])
-
 #Keyboard buttons with LSHIFT as mod    
             if pygame.key.get_mods() & pygame.KMOD_LSHIFT:
                 obj_cursor.sprite = 1
@@ -340,14 +390,16 @@ while not crashed:
                 if event.key == pygame.K_t:
                     if broj_taktova > 0:
                       broj_taktova -= 1
+
+                #add a sharp note
                 if event.key == pygame.K_RETURN:
                     if lista_nota:
-                        zastava_return = 0 #zastava je zbog brisanja iz liste
-                        for i in lista_nota:
-                            if checkXColision(i,obj_cursor.pozicija, obj_cursor.trajanje):
-                                zastava_return += 1
-                        if zastava_return:
-                            obj_cursor.sprite = 2
+                        x =  [i for i in lista_nota if findNote(i,obj_cursor.pozicija, obj_cursor.trajanje)]
+                        if x:
+                            if ((obj_cursor.ton not in [y.ton for y in x]) and all(obj_cursor.pozicija == y.pozicija for y in x) and all(obj_cursor.trajanje == y.trajanje for y in x)):
+                                lista_nota.append(dodaj_notu(obj_cursor.pozicija, obj_cursor.ton, obj_cursor.trajanje, 1))
+                            else:
+                                obj_cursor.sprite = 2
                         else:
                             lista_nota.append(dodaj_notu(obj_cursor.pozicija, obj_cursor.ton, obj_cursor.trajanje, 1))
                     else:
@@ -364,16 +416,17 @@ while not crashed:
                         if obj_cursor.trajanje < 16:
                             obj_cursor.trajanje += 1
                             obj_cursor.pozicija -= 1
+
                 if event.key == pygame.K_RETURN:
                     if lista_nota:
-                        zastava_return = 0 #zastava je zbog brisanja iz liste
-                        for i in lista_nota:
-                            if checkXColision(i,obj_cursor.pozicija, obj_cursor.trajanje):
-                                zastava_return += 1
-                        if zastava_return:
-                            obj_cursor.sprite = 2
+                        x =  [i for i in lista_nota if findNote(i,obj_cursor.pozicija, obj_cursor.trajanje)]
+                        if x:
+                            if ((obj_cursor.ton not in [y.ton for y in x]) and all(obj_cursor.pozicija == y.pozicija for y in x) and all(obj_cursor.trajanje == y.trajanje for y in x)):
+                                lista_nota.append(dodaj_notu(obj_cursor.pozicija, obj_cursor.ton, obj_cursor.trajanje, 2))
+                            else:
+                                obj_cursor.sprite = 2
                         else:
-                            lista_nota.append(dodaj_notu(obj_cursor.pozicija, obj_cursor.ton, obj_cursor.trajanje, 2))
+                            lista_nota.append(dodaj_notu(obj_cursor.pozicija, obj_cursor.ton, obj_cursor.trajanje, 1))
                     else:
                         lista_nota.append(dodaj_notu(obj_cursor.pozicija, obj_cursor.ton, obj_cursor.trajanje, 2))
 
@@ -386,6 +439,14 @@ while not crashed:
                 if event.key == pygame.K_l:
                     lista_nota = pickle.load(open( "save.lhp", "rb" ))
                     print("load")
+
+                #remove all notes under the cursor
+                if event.key == pygame.K_d:
+                    x =  [i for i in lista_nota if findNote(i,obj_cursor.pozicija, obj_cursor.trajanje)]
+                    if x:
+                        for i in x:
+                            if i in lista_nota:
+                                lista_nota.remove(i)
 
 #Keyboard buttons with LALT as mod    
             if pygame.key.get_mods() & pygame.KMOD_LALT:
@@ -427,9 +488,9 @@ while not crashed:
     obj_cursor.apsolute_x = obj_cursor.pozicija - (obj_cursor.bg_scroll_x)
 
     if obj_cursor.apsolute_y > 12:
-        obj_cursor.bg_scroll_y +=1
+        obj_cursor.bg_scroll_y += 1
     elif obj_cursor.apsolute_y < -12:
-        obj_cursor.bg_scroll_y -=1
+        obj_cursor.bg_scroll_y -= 1
 
     if obj_cursor.apsolute_x < 0:
         obj_cursor.bg_scroll_x -=1
