@@ -115,6 +115,9 @@ drugi_takt_lijevi = 115
 drugi_takt_desni = 115
 broj_taktova = 4
 
+insert_mode = 0
+visual_mode = 0
+
 while not crashed:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -378,6 +381,18 @@ while not crashed:
                         if findNote(y, obj_cursor.pozicija, obj_cursor.trajanje) in (1,2):
                             obj_cursor.pozicija = y.pozicija + y.trajanje
 
+                if event.key == pygame.K_i:
+                    if not visual_mode:
+                        insert_mode = 1
+
+                if event.key == pygame.K_v:
+                    if not insert_mode:
+                        visual_mode = 1
+
+                if event.key == pygame.K_ESCAPE:
+                    insert_mode = 0
+                    visual_mode = 0
+
 #Keyboard buttons with LSHIFT as mod    
             if pygame.key.get_mods() & pygame.KMOD_LSHIFT:
                 obj_cursor.sprite = 1
@@ -532,6 +547,16 @@ while not crashed:
     #show measure number
     for i,j in enumerate("B" + str(int(obj_cursor.pozicija/16)+1)):
         blit_slovo((i*4)+20,0,slovoPozicija(j))
+
+    #show insert mod
+    if insert_mode:
+        for i,j in enumerate("-- INSERT --"):
+            blit_slovo((i*4)+112,90-5,slovoPozicija(j))
+
+    #show visual mod
+    if visual_mode:
+        for i,j in enumerate("-- VISUAL --"):
+            blit_slovo((i*4)+112,90-5,slovoPozicija(j))
 
     #plavi okvir
     blit_kljucevi(0,-15+bg_scroll_y)

@@ -6,7 +6,7 @@ def pozicijaSprite(broj, x_velicina):
   return(pixel)
 
 #spriteSlova = ["A", "B", "C", "D", "E", "F", "G", "H", "i", "s", "e"]
-spriteSlova = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "s", ",", "'", "1", "2", "4", "8", "6", "3", ".", "5", "7", "9", "0", "M", "B"]
+spriteSlova = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "s", ",", "'", "1", "2", "4", "8", "6", "3", ".", "5", "7", "9", "0", "M", "B", "I", "N", "S", "E", "R", "T", " ", "-", "V","U" ,"A", "L"]
 
 def pixel2Ton(pixel):
   rezolucija = 90
