@@ -198,3 +198,35 @@ def findNote(nota, cursorLeft, trajanje):
     return(7)
   else:
     return(False)
+
+letter2MidiNumberPrefix = {
+"c" : "0",
+"d" : "2",
+"e" : "4",
+"f" : "5",
+"g" : "7",
+"a" : "9",
+"h" : "11",
+}
+
+letter2MidiOctave = {
+",," : "24",
+"," : "36",
+"" : "48",
+"'" : "60",
+"''" : "72",
+"'''" : "84",
+}
+
+predikat2Midi = {
+    0 : 0,
+    1 : 1,
+    2 : -1,
+}
+
+def nota2MidiNumber(nota):
+    return(int(letter2MidiNumberPrefix[kljucevi[nota.ton][0]]) + int(letter2MidiOctave[kljucevi[nota.ton][1]]) + int(predikat2Midi[nota.predikat]))
+
+def get_git_revision_short_hash():
+    import subprocess
+    return subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD'])

@@ -1,11 +1,52 @@
 #!/usr/bin/env python3
 
+import argparse
+import subprocess
+parser = argparse.ArgumentParser()
+parser.add_argument("-m", "--midiout", help="enable midi output", action="store_true")
+parser.add_argument("-c", "--midiport", type=int,  help="connect to midi port")
+parser.add_argument("-l", "--listmidiports",  help="list midi ports and exit", action="store_true")
+parser.add_argument("-p", "--projectname",  help="project name, use *.lhp extension", type=str)
+parser.add_argument('--version', action='version', version=subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).strip().decode("utf-8"))
+args = parser.parse_args()
+
 import pygame_sdl2 as pygame
 from pygame_sdl2.locals import *
 from korisneFunkcije import *
 import operator
-import pickle
-import math
+import pickle #used for saving and loading projects
+import math #used for scrolling screen
+
+if args.listmidiports or args.midiport:
+    args.midiout = True
+
+if args.midiout:
+    import time
+    import rtmidi
+    midiout = rtmidi.MidiOut()
+    available_ports = midiout.get_ports()
+    print("MIDIout enabled")
+
+if args.listmidiports:
+    for i,y in enumerate(available_ports):
+        print(i+1, ":", y)
+    quit()
+
+if args.midiport:
+    midiout.open_port(args.midiport-1)
+    print("lhp connected to", available_ports[args.midiport-1])
+elif not args.midiport and args.midiout:
+    midiout.open_virtual_port("lhp")
+    print("Created virtual MIDIport: lhp")
+
+if args.projectname:
+    print("Project name:", args.projectname)
+    #lista_nota = pickle.load(open( args.projectname, "rb" ))
+
+else:
+    args.projectname = "save.lhp"
+
+#Start of the program ###########################################
 
 pygame.init()
 
@@ -116,12 +157,24 @@ drugi_takt_lijevi = 115
 drugi_takt_desni = 115
 broj_taktova = 4
 
-#insert mode
+fake_scroll = 0
+midi_notes = []
+tempo = 120
+
+def ajdemi():
+    obj_cursor.apsolute_x = obj_cursor.pozicija - (obj_cursor.bg_scroll_x) - fake_scroll
+    print("obj_cursor.apsolute_x", obj_cursor.apsolute_x)
+    print("obj_cursor.pozicija", obj_cursor.pozicija)
+    print("obj_cursor.bg_scroll_x", obj_cursor.bg_scroll_x)
+    print("fake_scroll", fake_scroll)
+
+#modes defined
 insert_mode = 0
 insert_mode_cursor_length = 0
-
-#old mode
 old_mode = 0
+g_mode = 0
+def modes():
+    return(insert_mode + old_mode + g_mode)
 
 while not crashed:
     for event in pygame.event.get():
@@ -135,22 +188,27 @@ while not crashed:
                 #modes defined
 
                 #= enter old mode
-                if event.key == pygame.K_EQUALS:
+                if event.key == pygame.K_EQUALS and not modes():
                     old_mode = 1
 
                 #i insert note before the current cursor possition
-                if event.key == pygame.K_i and not old_mode:
+                if event.key == pygame.K_i and not modes():
                     insert_mode = 1
                     obj_cursor.trajanje = insert_mode_cursor_length
+
+                #i insert note before the current cursor possition
+                if event.key == pygame.K_g and not modes():
+                    g_mode = 1
 
                 if event.key == pygame.K_ESCAPE:
                     old_mode = 0
                     insert_mode = 0
+                    g_mode = 0
                     insert_mode_cursor_length = obj_cursor.trajanje
                     obj_cursor.trajanje = 0
 
                 #no modes keys
-                if not insert_mode and not old_mode:
+                if not modes():
                     if event.key in (pygame.K_RIGHT, pygame.K_l):
                         obj_cursor.pozicija += 1
                     if event.key in (pygame.K_LEFT, pygame.K_h):
@@ -190,17 +248,32 @@ while not crashed:
                     if event.key == pygame.K_o:
                         insert_mode = 1
                         obj_cursor.pozicija = int(obj_cursor.pozicija / 16) * 16 + 16
-                        obj_cursor.bg_scroll_x = obj_cursor.pozicija - 2
+                        fake_scroll = -20
                         if lista_nota:
                             for i in lista_nota:
                                 if i.pozicija >= obj_cursor.pozicija:
                                     i.pozicija += 16
                         broj_taktova += 1
 
+                    #x  delete (cut) current character
+                    if event.key == pygame.K_x:
+                        x =  [i for i in lista_nota if findNote(i,obj_cursor.pozicija, obj_cursor.trajanje)]
+                        if x:
+                            for i in x:
+                                if i in lista_nota:
+                                    lista_nota.remove(i)
+
+                    #p play note as midi
+                    if event.key == pygame.K_p:
+                        midi_notes = [[i,midiplaylhp.time.clock(), 0] for i in lista_nota if findNote(i,obj_cursor.pozicija, obj_cursor.trajanje)]
+
                     # testing
                     if event.key == pygame.K_y:
-                        print("scroll" + str(obj_cursor.bg_scroll_x))
-                        print("apsolute" + str(obj_cursor.pozicija - obj_cursor.bg_scroll_x))
+                        obj_cursor.apsolute_x = obj_cursor.pozicija - (obj_cursor.bg_scroll_x) - fake_scroll
+                        print("obj_cursor.apsolute_x", obj_cursor.apsolute_x)
+                        print("obj_cursor.pozicija", obj_cursor.pozicija)
+                        print("obj_cursor.bg_scroll_x", obj_cursor.bg_scroll_x)
+                        print("fake_scroll", fake_scroll)
 
                 #insert mode
                 if insert_mode:
@@ -279,10 +352,14 @@ while not crashed:
                                 if i.pozicija > obj_cursor.pozicija:
                                     i.pozicija -= obj_cursor.trajanje + 1
 
+                    #p play note as midi
+                    if event.key == pygame.K_p:
+                        midi_notes = [[i,midiplaylhp.time.clock(), 0] for i in lista_nota if findNote(i,obj_cursor.pozicija, obj_cursor.trajanje)]
+
 
 
                 #old mode
-                if old_mode and not insert_mode:
+                if old_mode:
 
                     if event.key == pygame.K_RIGHT:
                         obj_cursor.pozicija += 1
@@ -520,12 +597,27 @@ while not crashed:
                             if findNote(y, obj_cursor.pozicija, obj_cursor.trajanje) in (2,3):
                                 y.trajanje =  obj_cursor.pozicija - y.pozicija - 1
 
+                    #p play note as midi
+                    if event.key == pygame.K_p:
+                        midi_notes = [[i,midiplaylhp.time.clock(), 0] for i in lista_nota if findNote(i,obj_cursor.pozicija, obj_cursor.trajanje)]
+
+                #if g_mode:
+                #    if event.key == pygame.K_p:
+                #        pass
+                #    if event.key == pygame.K_g:
+                #      obj_cursor.bg_scroll_x = 0
+                #      obj_cursor.bg_scroll_y = 0
+                #      obj_cursor.pozicija = 0
+                #      obj_cursor.ton = 20
+                #    g_mode = 0
+
+
 #Keyboard buttons with LSHIFT as mod
             if pygame.key.get_mods() & pygame.KMOD_LSHIFT:
 
                 #modes defined
                 #no modes
-                if not insert_mode and not old_mode:
+                if not modes():
                     pass
                 
                 #I insert note at the beginning of the bar
@@ -549,6 +641,17 @@ while not crashed:
                             if i.pozicija >= obj_cursor.pozicija:
                                 i.pozicija += 16
                     broj_taktova += 1
+
+                if insert_mode:
+                    #enlarge CURSOR.lenght by 1
+                    if event.key == pygame.K_RIGHT:
+                        if obj_cursor.trajanje < 15:
+                            obj_cursor.trajanje += 1
+
+                    #reduce CURSOR.lenght by 1
+                    if event.key == pygame.K_LEFT:
+                        if obj_cursor.trajanje > 0:
+                            obj_cursor.trajanje -= 1
 
 
                 if old_mode:
@@ -580,8 +683,17 @@ while not crashed:
 #Keyboard buttons with LCTRL as mod
             if ((pygame.key.get_mods() & pygame.KMOD_LCTRL)):
 
-                if not insert_mode and not old_mode:
-                    pass
+                if not modes():
+
+                    #save project to file
+                    if event.key == pygame.K_s:
+                        pickle.dump(lista_nota, open( args.projectname, "wb" ))
+                        print("save")
+
+                    #load project from file
+                    if event.key == pygame.K_l:
+                        lista_nota = pickle.load(open( args.projectname, "rb" ))
+                        print("load")
 
                 if old_mode:
                     obj_cursor.sprite = 1
@@ -607,16 +719,6 @@ while not crashed:
                         else:
                             lista_nota.append(dodaj_notu(obj_cursor.pozicija, obj_cursor.ton, obj_cursor.trajanje, 2))
 
-                    #save project to file
-                    if event.key == pygame.K_s:
-                        pickle.dump(lista_nota, open( "save.lhp", "wb" ))
-                        print("save")
-
-                    #load project from file
-                    if event.key == pygame.K_l:
-                        lista_nota = pickle.load(open( "save.lhp", "rb" ))
-                        print("load")
-
                     #remove all notes under the cursor
                     if event.key == pygame.K_d:
                         x =  [i for i in lista_nota if findNote(i,obj_cursor.pozicija, obj_cursor.trajanje)]
@@ -628,7 +730,7 @@ while not crashed:
 #Keyboard buttons with LALT as mod
             if pygame.key.get_mods() & pygame.KMOD_LALT:
 
-                if not insert_mode and not old_mode:
+                if not modes():
                     pass
 
                 if old_mode:
@@ -664,12 +766,34 @@ while not crashed:
                 #left = 0
                 #right = 0
 
+# playing midi notes ###############################################################
+    if midi_notes:
+        for i in midi_notes:
+            start_point = (i[0].pozicija - obj_cursor.pozicija)*(60/tempo/4) + i[1]
+            #print(start_point, end_point)
+            end_point = (i[0].pozicija - obj_cursor.pozicija + i[0].trajanje + 1)*(60/tempo/4) + i[1]
+            if (i[2] == 0 and (midiplaylhp.time.clock() >= start_point)):
+                    print(start_point, end_point)
+                    print(str(nota2MidiNumber(i[0])) + " on")
+                    midiplaylhp.midiout.send_message([144, nota2MidiNumber(i[0]), 100])
+                    #print(midiplaylhp.time)
+                    i[2] = 1
+            if (i[2] == 1 and (midiplaylhp.time.clock() >= end_point)):
+                    print(str(nota2MidiNumber(i[0])) + " off")
+                    midiplaylhp.midiout.send_message([144, nota2MidiNumber(i[0]), 0])
+                    midi_notes.remove(i)
+
+
 # bliting #########################################################################
 
     #racunanje bg_scroll-a
     #pozicija cursora u svakom trenutku ovisno na okvir screen-a
     obj_cursor.apsolute_y = obj_cursor.ton - 20 - (obj_cursor.bg_scroll_y)
-    obj_cursor.apsolute_x = obj_cursor.pozicija - (obj_cursor.bg_scroll_x)
+    obj_cursor.apsolute_x = obj_cursor.pozicija - (obj_cursor.bg_scroll_x) - fake_scroll
+
+
+    if (int(obj_cursor.apsolute_x) - int(abs(fake_scroll))) == 2:
+        fake_scroll = 0
 
     if obj_cursor.apsolute_y > 12:
         obj_cursor.bg_scroll_y += 1
@@ -680,10 +804,12 @@ while not crashed:
         #obj_cursor.bg_scroll_x -=1
         x = (obj_cursor.apsolute_x - 1)
         obj_cursor.bg_scroll_x -= round(math.log(abs(x))*0.6, 1)
+        ajdemi()
     elif obj_cursor.apsolute_x + obj_cursor.trajanje > 22:
         x = (obj_cursor.apsolute_x + obj_cursor.trajanje - 21)
         obj_cursor.bg_scroll_x += round(math.log(x)*0.6, 1)
         #print(round(x, 1))
+        ajdemi()
 
     bg_scroll_x = obj_cursor.bg_scroll_x * 6
     bg_scroll_y = obj_cursor.bg_scroll_y * 3
