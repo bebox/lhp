@@ -265,7 +265,7 @@ while not crashed:
 
                     #p play note as midi
                     if event.key == pygame.K_p:
-                        midi_notes = [[i,midiplaylhp.time.clock(), 0] for i in lista_nota if findNote(i,obj_cursor.pozicija, obj_cursor.trajanje)]
+                        midi_notes = [[i,time.clock(), 0] for i in lista_nota if findNote(i,obj_cursor.pozicija, obj_cursor.trajanje)]
 
                     # testing
                     if event.key == pygame.K_y:
@@ -354,7 +354,7 @@ while not crashed:
 
                     #p play note as midi
                     if event.key == pygame.K_p:
-                        midi_notes = [[i,midiplaylhp.time.clock(), 0] for i in lista_nota if findNote(i,obj_cursor.pozicija, obj_cursor.trajanje)]
+                        midi_notes = [[i,time.clock(), 0] for i in lista_nota if findNote(i,obj_cursor.pozicija, obj_cursor.trajanje)]
 
 
 
@@ -599,7 +599,7 @@ while not crashed:
 
                     #p play note as midi
                     if event.key == pygame.K_p:
-                        midi_notes = [[i,midiplaylhp.time.clock(), 0] for i in lista_nota if findNote(i,obj_cursor.pozicija, obj_cursor.trajanje)]
+                        midi_notes = [[i,time.clock(), 0] for i in lista_nota if findNote(i,obj_cursor.pozicija, obj_cursor.trajanje)]
 
                 #if g_mode:
                 #    if event.key == pygame.K_p:
@@ -772,15 +772,14 @@ while not crashed:
             start_point = (i[0].pozicija - obj_cursor.pozicija)*(60/tempo/4) + i[1]
             #print(start_point, end_point)
             end_point = (i[0].pozicija - obj_cursor.pozicija + i[0].trajanje + 1)*(60/tempo/4) + i[1]
-            if (i[2] == 0 and (midiplaylhp.time.clock() >= start_point)):
-                    print(start_point, end_point)
+            if (i[2] == 0 and (time.clock() >= start_point)):
                     print(str(nota2MidiNumber(i[0])) + " on")
-                    midiplaylhp.midiout.send_message([144, nota2MidiNumber(i[0]), 100])
-                    #print(midiplaylhp.time)
+                    midiout.send_message([144, nota2MidiNumber(i[0]), 100])
+                    #print(time.clock())
                     i[2] = 1
-            if (i[2] == 1 and (midiplaylhp.time.clock() >= end_point)):
+            if (i[2] == 1 and (time.clock() >= end_point)):
                     print(str(nota2MidiNumber(i[0])) + " off")
-                    midiplaylhp.midiout.send_message([144, nota2MidiNumber(i[0]), 0])
+                    midiout.send_message([144, nota2MidiNumber(i[0]), 0])
                     midi_notes.remove(i)
 
 
