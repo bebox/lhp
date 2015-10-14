@@ -12,7 +12,7 @@ args = parser.parse_args()
 
 import pygame_sdl2 as pygame
 from pygame_sdl2.locals import *
-from korisneFunkcije import *
+from lhpFunctions import *
 import operator
 import pickle #used for saving and loading projects
 import math #used for scrolling screen
@@ -160,6 +160,7 @@ broj_taktova = 4
 fake_scroll = 0
 midi_notes = []
 tempo = 120
+midiplay = 0
 
 def ajdemi():
     obj_cursor.apsolute_x = obj_cursor.pozicija - (obj_cursor.bg_scroll_x) - fake_scroll
@@ -265,7 +266,8 @@ while not crashed:
 
                     #p play note as midi
                     if event.key == pygame.K_p:
-                        midi_notes = [[i,time.clock(), 0] for i in lista_nota if findNote(i,obj_cursor.pozicija, obj_cursor.trajanje)]
+                        if midiplay == 0:
+                            midi_notes = [[i,time.clock(), 0] for i in lista_nota if findNote(i,obj_cursor.pozicija, obj_cursor.trajanje)]
 
                     # testing
                     if event.key == pygame.K_y:
@@ -354,7 +356,8 @@ while not crashed:
 
                     #p play note as midi
                     if event.key == pygame.K_p:
-                        midi_notes = [[i,time.clock(), 0] for i in lista_nota if findNote(i,obj_cursor.pozicija, obj_cursor.trajanje)]
+                        if midiplay == 0:
+                            midi_notes = [[i,time.clock(), 0] for i in lista_nota if findNote(i,obj_cursor.pozicija, obj_cursor.trajanje)]
 
 
 
@@ -599,7 +602,20 @@ while not crashed:
 
                     #p play note as midi
                     if event.key == pygame.K_p:
-                        midi_notes = [[i,time.clock(), 0] for i in lista_nota if findNote(i,obj_cursor.pozicija, obj_cursor.trajanje)]
+                        print("oj")
+                        if midiplay == 1:
+                            for i in midi_notes:
+                                if i[2] == 1:
+                                    pass
+                                    #midiout.send_message([144, nota2MidiNumber(i[0]), 0])
+                                    #midi_notes.remove(i)
+                                    print("svira", i[0].pozicija)
+                                else:
+                                    midi_notes.remove(i)
+                                    print("removed", i[0].pozicija)
+                        elif midiplay == 0:
+                            midi_notes = [[i,time.clock(), 0] for i in lista_nota if findNote(i,obj_cursor.pozicija, obj_cursor.trajanje)]
+
 
                 #if g_mode:
                 #    if event.key == pygame.K_p:
@@ -768,19 +784,23 @@ while not crashed:
 
 # playing midi notes ###############################################################
     if midi_notes:
+        midiplay = 1
+        swap_pozicija = obj_cursor.pozicija
         for i in midi_notes:
-            start_point = (i[0].pozicija - obj_cursor.pozicija)*(60/tempo/4) + i[1]
+            start_point = (i[0].pozicija - swap_pozicija)*(60/tempo/4) + i[1]
             #print(start_point, end_point)
-            end_point = (i[0].pozicija - obj_cursor.pozicija + i[0].trajanje + 1)*(60/tempo/4) + i[1]
+            end_point = (i[0].pozicija - swap_pozicija + i[0].trajanje + 1)*(60/tempo/4) + i[1]
             if (i[2] == 0 and (time.clock() >= start_point)):
+                    i[2] = 1
                     print(str(nota2MidiNumber(i[0])) + " on")
                     midiout.send_message([144, nota2MidiNumber(i[0]), 100])
                     #print(time.clock())
-                    i[2] = 1
             if (i[2] == 1 and (time.clock() >= end_point)):
                     print(str(nota2MidiNumber(i[0])) + " off")
                     midiout.send_message([144, nota2MidiNumber(i[0]), 0])
                     midi_notes.remove(i)
+    else:
+        midiplay = 0
 
 
 # bliting #########################################################################
