@@ -711,6 +711,136 @@ while not crashed:
                         lista_nota = pickle.load(open( args.projectname, "rb" ))
                         print("load")
 
+                    #play only first voice
+                    #midiout.send_message([144, nota2MidiNumber(i[0]), 100])
+                    if event.key == pygame.K_1:
+                        if midiplay == 1:
+                            midi_notes = []
+                            midiout.send_message([176, 123, 0])
+                            midiplay = 0
+                        lista_nota_sorted = []
+                        lista_nota_index = []
+                        kljucevi_nota = {}
+                        midi_notes = []
+                        for i in lista_nota:
+                            lista_nota_index.append(i.pozicija)
+                        lista_nota_sorted = list(set(lista_nota_index))
+                        lista_nota_sorted.sort()
+                        #empty list from note indexes
+                        for i in lista_nota_sorted:
+                            kljucevi_nota[i] = []
+                        #add notes with indexes to the hash sublist
+                        for i in lista_nota:
+                            kljucevi_nota[i.pozicija].append(i)
+                        #sort the hash.list with ton object
+                        for i in kljucevi_nota:
+                            kljucevi_nota[i].sort(key=operator.attrgetter('ton'))
+                        #add and play    
+                        for i in lista_nota_sorted:
+                            #for y in kljucevi_nota[i]:
+                            #    #print(y.pozicija, y.ton, y.trajanje)
+                            if len(kljucevi_nota[i]) > 1:
+                                midi_notes.append([kljucevi_nota[i][3],time.clock(), 0])
+                            else:
+                                midi_notes.append([kljucevi_nota[i][0],time.clock(), 0])
+                    #play only second voice
+                    if event.key == pygame.K_2:
+                        if midiplay == 1:
+                            midi_notes = []
+                            midiout.send_message([176, 123, 0])
+                            midiplay = 0
+                        lista_nota_sorted = []
+                        lista_nota_index = []
+                        kljucevi_nota = {}
+                        midi_notes = []
+                        for i in lista_nota:
+                            lista_nota_index.append(i.pozicija)
+                        lista_nota_sorted = list(set(lista_nota_index))
+                        lista_nota_sorted.sort()
+                        #empty list from note indexes
+                        for i in lista_nota_sorted:
+                            kljucevi_nota[i] = []
+                        #add notes with indexes to the hash sublist
+                        for i in lista_nota:
+                            kljucevi_nota[i.pozicija].append(i)
+                        #sort the hash.list with ton object
+                        for i in kljucevi_nota:
+                            kljucevi_nota[i].sort(key=operator.attrgetter('ton'))
+                        #add and play    
+                        for i in lista_nota_sorted:
+                            #for y in kljucevi_nota[i]:
+                            #    #print(y.pozicija, y.ton, y.trajanje)
+                            if len(kljucevi_nota[i]) > 1:
+                                midi_notes.append([kljucevi_nota[i][2],time.clock(), 0])
+                            else:
+                                midi_notes.append([kljucevi_nota[i][0],time.clock(), 0])
+                    #play only third voice
+                    if event.key == pygame.K_3:
+                        if midiplay == 1:
+                            midi_notes = []
+                            midiout.send_message([176, 123, 0])
+                            midiplay = 0
+                        lista_nota_sorted = []
+                        lista_nota_index = []
+                        kljucevi_nota = {}
+                        midi_notes = []
+                        for i in lista_nota:
+                            lista_nota_index.append(i.pozicija)
+                        lista_nota_sorted = list(set(lista_nota_index))
+                        lista_nota_sorted.sort()
+                        #empty list from note indexes
+                        for i in lista_nota_sorted:
+                            kljucevi_nota[i] = []
+                        #add notes with indexes to the hash sublist
+                        for i in lista_nota:
+                            kljucevi_nota[i.pozicija].append(i)
+                        #sort the hash.list with ton object
+                        for i in kljucevi_nota:
+                            kljucevi_nota[i].sort(key=operator.attrgetter('ton'))
+                        #add and play    
+                        for i in lista_nota_sorted:
+                            #for y in kljucevi_nota[i]:
+                            #    #print(y.pozicija, y.ton, y.trajanje)
+                            if len(kljucevi_nota[i]) > 1:
+                                midi_notes.append([kljucevi_nota[i][1],time.clock(), 0])
+                            else:
+                                midi_notes.append([kljucevi_nota[i][0],time.clock(), 0])
+                    #play only forth voice
+                    if event.key == pygame.K_4:
+                        if midiplay == 1:
+                            midi_notes = []
+                            midiout.send_message([176, 123, 0])
+                            midiplay = 0
+                        lista_nota_sorted = []
+                        lista_nota_index = []
+                        kljucevi_nota = {}
+                        midi_notes = []
+                        for i in lista_nota:
+                            lista_nota_index.append(i.pozicija)
+                        lista_nota_sorted = list(set(lista_nota_index))
+                        lista_nota_sorted.sort()
+                        #empty list from note indexes
+                        for i in lista_nota_sorted:
+                            kljucevi_nota[i] = []
+                        #add notes with indexes to the hash sublist
+                        for i in lista_nota:
+                            kljucevi_nota[i.pozicija].append(i)
+                        #sort the hash.list with ton object
+                        for i in kljucevi_nota:
+                            kljucevi_nota[i].sort(key=operator.attrgetter('ton'))
+                        #add and play    
+                        for i in lista_nota_sorted:
+                            #for y in kljucevi_nota[i]:
+                            #    #print(y.pozicija, y.ton, y.trajanje)
+                            if len(kljucevi_nota[i]) > 1:
+                                midi_notes.append([kljucevi_nota[i][0],time.clock(), 0])
+                            else:
+                                midi_notes.append([kljucevi_nota[i][0],time.clock(), 0])
+
+                    if event.key == pygame.K_0:
+                        midi_notes = []
+                        midiout.send_message([176, 123, 0])
+
                 if old_mode:
                     obj_cursor.sprite = 1
                     if event.key == pygame.K_RIGHT:
@@ -742,6 +872,140 @@ while not crashed:
                             for i in x:
                                 if i in lista_nota:
                                     lista_nota.remove(i)
+
+                    if event.key == pygame.K_0:
+                        midi_notes = []
+                        midiout.send_message([176, 123, 0])
+
+
+                    #play only first voice
+                    if event.key == pygame.K_1:
+                        if midiplay == 1:
+                            midi_notes = []
+                            midiout.send_message([176, 123, 0])
+                            midiplay = 0
+                        odabrana_lista_nota = [i for i in lista_nota if findNote(i,obj_cursor.pozicija, obj_cursor.trajanje)]
+                        lista_nota_sorted = []
+                        lista_nota_index = []
+                        kljucevi_nota = {}
+                        midi_notes = []
+                        for i in odabrana_lista_nota:
+                            lista_nota_index.append(i.pozicija)
+                        lista_nota_sorted = list(set(lista_nota_index))
+                        lista_nota_sorted.sort()
+                        #empty list from note indexes
+                        for i in lista_nota_sorted:
+                            kljucevi_nota[i] = []
+                        #add notes with indexes to the hash sublist
+                        for i in odabrana_lista_nota:
+                            kljucevi_nota[i.pozicija].append(i)
+                        #sort the hash.list with ton object
+                        for i in kljucevi_nota:
+                            kljucevi_nota[i].sort(key=operator.attrgetter('ton'))
+                        #add and play    
+                        for i in lista_nota_sorted:
+                            #for y in kljucevi_nota[i]:
+                            #    #print(y.pozicija, y.ton, y.trajanje)
+                            if len(kljucevi_nota[i]) > 1:
+                                midi_notes.append([kljucevi_nota[i][3],time.clock(), 0])
+                            else:
+                                midi_notes.append([kljucevi_nota[i][0],time.clock(), 0])
+                    #play only second voice
+                    if event.key == pygame.K_2:
+                        if midiplay == 1:
+                            midi_notes = []
+                            midiout.send_message([176, 123, 0])
+                            midiplay = 0
+                        odabrana_lista_nota = [i for i in lista_nota if findNote(i,obj_cursor.pozicija, obj_cursor.trajanje)]
+                        lista_nota_sorted = []
+                        lista_nota_index = []
+                        kljucevi_nota = {}
+                        midi_notes = []
+                        for i in odabrana_lista_nota:
+                            lista_nota_index.append(i.pozicija)
+                        lista_nota_sorted = list(set(lista_nota_index))
+                        lista_nota_sorted.sort()
+                        #empty list from note indexes
+                        for i in lista_nota_sorted:
+                            kljucevi_nota[i] = []
+                        #add notes with indexes to the hash sublist
+                        for i in odabrana_lista_nota:
+                            kljucevi_nota[i.pozicija].append(i)
+                        #sort the hash.list with ton object
+                        for i in kljucevi_nota:
+                            kljucevi_nota[i].sort(key=operator.attrgetter('ton'))
+                        #add and play    
+                        for i in lista_nota_sorted:
+                            #for y in kljucevi_nota[i]:
+                            #    #print(y.pozicija, y.ton, y.trajanje)
+                            if len(kljucevi_nota[i]) > 1:
+                                midi_notes.append([kljucevi_nota[i][2],time.clock(), 0])
+                            else:
+                                midi_notes.append([kljucevi_nota[i][0],time.clock(), 0])
+                    #play only third voice
+                    if event.key == pygame.K_3:
+                        if midiplay == 1:
+                            midi_notes = []
+                            midiout.send_message([176, 123, 0])
+                            midiplay = 0
+                        odabrana_lista_nota = [i for i in lista_nota if findNote(i,obj_cursor.pozicija, obj_cursor.trajanje)]
+                        lista_nota_sorted = []
+                        lista_nota_index = []
+                        kljucevi_nota = {}
+                        midi_notes = []
+                        for i in odabrana_lista_nota:
+                            lista_nota_index.append(i.pozicija)
+                        lista_nota_sorted = list(set(lista_nota_index))
+                        lista_nota_sorted.sort()
+                        #empty list from note indexes
+                        for i in lista_nota_sorted:
+                            kljucevi_nota[i] = []
+                        #add notes with indexes to the hash sublist
+                        for i in odabrana_lista_nota:
+                            kljucevi_nota[i.pozicija].append(i)
+                        #sort the hash.list with ton object
+                        for i in kljucevi_nota:
+                            kljucevi_nota[i].sort(key=operator.attrgetter('ton'))
+                        #add and play    
+                        for i in lista_nota_sorted:
+                            #for y in kljucevi_nota[i]:
+                            #    #print(y.pozicija, y.ton, y.trajanje)
+                            if len(kljucevi_nota[i]) > 1:
+                                midi_notes.append([kljucevi_nota[i][1],time.clock(), 0])
+                            else:
+                                midi_notes.append([kljucevi_nota[i][0],time.clock(), 0])
+                    #play only forth voice
+                    if event.key == pygame.K_4:
+                        if midiplay == 1:
+                            midi_notes = []
+                            midiout.send_message([176, 123, 0])
+                            midiplay = 0
+                        odabrana_lista_nota = [i for i in lista_nota if findNote(i,obj_cursor.pozicija, obj_cursor.trajanje)]
+                        lista_nota_sorted = []
+                        lista_nota_index = []
+                        kljucevi_nota = {}
+                        midi_notes = []
+                        for i in odabrana_lista_nota:
+                            lista_nota_index.append(i.pozicija)
+                        lista_nota_sorted = list(set(lista_nota_index))
+                        lista_nota_sorted.sort()
+                        #empty list from note indexes
+                        for i in lista_nota_sorted:
+                            kljucevi_nota[i] = []
+                        #add notes with indexes to the hash sublist
+                        for i in odabrana_lista_nota:
+                            kljucevi_nota[i.pozicija].append(i)
+                        #sort the hash.list with ton object
+                        for i in kljucevi_nota:
+                            kljucevi_nota[i].sort(key=operator.attrgetter('ton'))
+                        #add and play    
+                        for i in lista_nota_sorted:
+                            #for y in kljucevi_nota[i]:
+                            #    #print(y.pozicija, y.ton, y.trajanje)
+                            if len(kljucevi_nota[i]) > 1:
+                                midi_notes.append([kljucevi_nota[i][0],time.clock(), 0])
+                            else:
+                                midi_notes.append([kljucevi_nota[i][0],time.clock(), 0])
 
 #Keyboard buttons with LALT as mod
             if pygame.key.get_mods() & pygame.KMOD_LALT:
@@ -791,14 +1055,14 @@ while not crashed:
             #print(start_point, end_point)
             end_point = (i[0].pozicija - swap_pozicija + i[0].trajanje + 1)*(60/tempo/4) + i[1]
             if (i[2] == 0 and (time.clock() >= start_point)):
-                    i[2] = 1
-                    print(str(nota2MidiNumber(i[0])) + " on")
-                    midiout.send_message([144, nota2MidiNumber(i[0]), 100])
-                    #print(time.clock())
+                i[2] = 1
+                #print(str(nota2MidiNumber(i[0])) + " on")
+                midiout.send_message([144, nota2MidiNumber(i[0]), 100])
+                #print(time.clock())
             if (i[2] == 1 and (time.clock() >= end_point)):
-                    print(str(nota2MidiNumber(i[0])) + " off")
-                    midiout.send_message([144, nota2MidiNumber(i[0]), 0])
-                    midi_notes.remove(i)
+                print(str(nota2MidiNumber(i[0])) + " off")
+                midiout.send_message([144, nota2MidiNumber(i[0]), 0])
+                midi_notes.remove(i)
     else:
         midiplay = 0
 
