@@ -49,12 +49,18 @@ else:
 
 #Start of the program ###########################################
 
+takt_offset =7
+tempo = 216
+
 pygame.init()
 
 #scale and display resolution
-display_scale_factor = 8 #display scale factor becouse original resolution is 160x90
-display_width = 160*display_scale_factor #this is graphics resolution, hardcoded
-display_height = 90*display_scale_factor #this is graphics resolution, hardcoded
+display_scale_factor = 6 #display scale factor becouse original resolution is 160x90
+display_width = 320*display_scale_factor #this is graphics resolution, hardcoded
+#display_width = 160*display_scale_factor #this is graphics resolution, hardcoded
+#display_height = 90*display_scale_factor #this is graphics resolution, hardcoded
+display_height = 180*display_scale_factor #this is graphics resolution, hardcoded
+#display_height = 90*display_scale_factor #this is graphics resolution, hardcoded
 
 #screen is a pygame default window
 screen = pygame.display.set_mode((display_width,display_height))
@@ -162,7 +168,6 @@ broj_taktova = 4
 
 fake_scroll = 0
 midi_notes = []
-tempo = 216
 #tempo = 120
 midiplay = 0
 
@@ -313,11 +318,24 @@ while not crashed:
 
                     # testing
                     if event.key == pygame.K_y:
-                        obj_cursor.apsolute_x = obj_cursor.pozicija - (obj_cursor.bg_scroll_x) - fake_scroll
-                        print("obj_cursor.apsolute_x", obj_cursor.apsolute_x)
-                        print("obj_cursor.pozicija", obj_cursor.pozicija)
-                        print("obj_cursor.bg_scroll_x", obj_cursor.bg_scroll_x)
-                        print("fake_scroll", fake_scroll)
+                        #obj_cursor.apsolute_x = obj_cursor.pozicija - (obj_cursor.bg_scroll_x) - fake_scroll
+                        #print("obj_cursor.apsolute_x", obj_cursor.apsolute_x)
+                        #print("obj_cursor.pozicija", obj_cursor.pozicija)
+                        #print("obj_cursor.bg_scroll_x", obj_cursor.bg_scroll_x)
+                        print("drugi_takt_desni+i*96-bg_scroll_x", drugi_takt_desni+i*96-(obj_cursor.bg_scroll_x * 6))
+                        #print("fake_scroll", fake_scroll)
+
+                    #view modes
+                    #cursor at the left position
+                    if event.key == pygame.K_1:
+                        obj_cursor.bg_scroll_x = obj_cursor.pozicija
+                    #cursor at the center
+                    if event.key == pygame.K_2:
+                        obj_cursor.bg_scroll_x = obj_cursor.pozicija-24
+                    #cursor at the right position
+                    if event.key == pygame.K_3:
+                        obj_cursor.bg_scroll_x = obj_cursor.pozicija-48
+
 
                 #insert mode
                 if insert_mode:
@@ -407,10 +425,10 @@ while not crashed:
                 if old_mode:
 
                     if event.key == pygame.K_RIGHT:
-                        obj_cursor.pozicija += 8
+                        obj_cursor.pozicija += 4
                     if event.key == pygame.K_LEFT:
                         if obj_cursor.pozicija > -15:
-                            obj_cursor.pozicija -= 8
+                            obj_cursor.pozicija -= 4
                     if event.key == pygame.K_UP:
                         if obj_cursor.ton < 40:
                             obj_cursor.ton += 1
@@ -1247,9 +1265,9 @@ while not crashed:
                             obj_cursor.bg_scroll_y -=1
                             obj_cursor.ton -=1
                     if event.key == pygame.K_LEFT:
-                        obj_cursor.bg_scroll_x -=1
+                        obj_cursor.bg_scroll_x -=8
                     if event.key == pygame.K_RIGHT:
-                        obj_cursor.bg_scroll_x +=1
+                        obj_cursor.bg_scroll_x +=8
 
                     #delete all but first voice
                     if event.key == pygame.K_1:
@@ -1437,14 +1455,18 @@ while not crashed:
 
     if obj_cursor.apsolute_x < 0:
         #obj_cursor.bg_scroll_x -=1
-        x = (obj_cursor.apsolute_x - 1)
+        #x = (obj_cursor.apsolute_x - 1)
+        #if x > 2:
+        obj_cursor.bg_scroll_x = obj_cursor.pozicija
         #obj_cursor.bg_scroll_x -= round(math.log(abs(x))*0.6, 1)
-        obj_cursor.bg_scroll_x -= round(math.log(abs(x))*8, 1)
+        #obj_cursor.bg_scroll_x -= round(math.log(abs(x))*8, 1)
         ajdemi()
-    elif obj_cursor.apsolute_x + obj_cursor.trajanje > 22:
-        x = (obj_cursor.apsolute_x + obj_cursor.trajanje - 21)
+    #elif obj_cursor.apsolute_x + obj_cursor.trajanje > 22:
+    elif obj_cursor.apsolute_x + obj_cursor.trajanje > 48:
+        #x = (obj_cursor.apsolute_x + obj_cursor.trajanje - 21)
+        obj_cursor.bg_scroll_x = obj_cursor.pozicija-48
         #obj_cursor.bg_scroll_x += round(math.log(x)*0.6, 1)
-        obj_cursor.bg_scroll_x += round(math.log(x)*8, 1)
+        #obj_cursor.bg_scroll_x += round(math.log(x)*8, 1)
         #print(round(x, 1))
         ajdemi()
 
@@ -1453,13 +1475,16 @@ while not crashed:
 
     #flipanje
     screen.fill(color_white)
-    blit_prvi_takt(18-bg_scroll_x,bg_scroll_y-15+30)
-
-    #if drugi_takt_lijevi-bg_scroll_x < 67:
+    if bg_scroll_x < 17*6:
+        blit_prvi_takt(18-bg_scroll_x,bg_scroll_y-15+30)
+#
+#    #if drugi_takt_lijevi-bg_scroll_x < 67:
     for i in range(0, broj_taktova):
-      blit_drugi_takt(drugi_takt_desni+i*96-bg_scroll_x,bg_scroll_y-15+30)
-
-    blit_zadnji_takt(drugi_takt_desni+broj_taktova*96-bg_scroll_x,bg_scroll_y-15+30)
+        #print(i*96-bg_scroll_x)
+        if -192 < i*96-bg_scroll_x < 192+40:
+            blit_drugi_takt(drugi_takt_desni+i*96-bg_scroll_x,bg_scroll_y-15+30)
+    if -192 < broj_taktova*96-bg_scroll_x < 192:
+        blit_zadnji_takt(drugi_takt_desni+broj_taktova*96-bg_scroll_x,bg_scroll_y-15+30)
 
 
     for i in lista_nota:
@@ -1486,12 +1511,8 @@ while not crashed:
 
     blit_cursor(pozicija2Pixel(obj_cursor.pozicija)-bg_scroll_x,ton2Pixel(obj_cursor.ton)+bg_scroll_y,pozicija2Pixel(obj_cursor.pozicija)+trajanje2Pixel(obj_cursor.trajanje)-bg_scroll_x,ton2Pixel(obj_cursor.ton)+bg_scroll_y,obj_cursor.sprite)
 
-    #show lilypond note value
-    for i,j in enumerate(kljucevi[obj_cursor.ton][0] + kljucevi[obj_cursor.ton][1] + rijecnikNotnihVrijednosti[obj_cursor.trajanje]):
-        blit_slovo((i*4)+20,90-5,slovoPozicija(j))
-
     #show measure number
-    for i,j in enumerate("B" + str(int(obj_cursor.pozicija/16)+1+7)):
+    for i,j in enumerate("B" + str(int(obj_cursor.pozicija/16)+1+takt_offset)):
     #for i,j in enumerate("B" + str(int(obj_cursor.pozicija/16)+1)):
         blit_slovo((i*4)+20,0,slovoPozicija(j))
 
@@ -1520,9 +1541,67 @@ while not crashed:
     #    for i,j in enumerate("-- VISUAL --"):
     #        blit_slovo((i*4)+112,90-5,slovoPozicija(j))
 
+    ##show visual mod
+    #if visual_mode:
+    #    for i,j in enumerate("-- VISUAL --"):
+    #        blit_slovo((i*4)+112,90-5,slovoPozicija(j))
+
     #plavi okvir
+#    blit_kljucevi(0,-15+bg_scroll_y)
+#    blit_rub(0,0)
+
+# bliting 2nd ROW#########################################################################
+
+    #flipanje
+    x_offset = -160*2+20
+    y_offset = 90
+    #screen.fill(color_white)
+#    if bg_scroll_x < 17*6+y_offset*6:
+#        blit_prvi_takt(18-bg_scroll_x+x_offset,bg_scroll_y-15+30+y_offset)
+#
+    for i in range(0, broj_taktova):
+        if -192+y_offset*3 < i*96-bg_scroll_x < 192+y_offset*4:
+            blit_drugi_takt(drugi_takt_desni+i*96-bg_scroll_x+x_offset,bg_scroll_y-15+30+y_offset)
+#
+    if -192+y_offset*3 < broj_taktova*96-bg_scroll_x < 192+y_offset*4:
+        blit_zadnji_takt(drugi_takt_desni+broj_taktova*96-bg_scroll_x+x_offset,bg_scroll_y-15+30+y_offset)
+
+
+    for i in lista_nota:
+        pygame.draw.rect(screen, lista_boja[i.predikat*2], [(pozicija2Pixel(i.pozicija)+2-bg_scroll_x+x_offset)*display_scale_factor,(ton2Pixel(i.ton)+2+bg_scroll_y+y_offset)*display_scale_factor,(trajanje2Pixel(i.trajanje)-1)*display_scale_factor,3*display_scale_factor] )
+        pygame.draw.rect(screen, lista_boja[i.predikat*2+1], [(pozicija2Pixel(i.pozicija)+3-bg_scroll_x+x_offset)*display_scale_factor,(ton2Pixel(i.ton)+3+bg_scroll_y+predikati[i.predikat]+y_offset)*display_scale_factor,(trajanje2Pixel(i.trajanje)-3)*display_scale_factor,(3-2)*display_scale_factor] )
+        #show ligatures
+        if i.ligatura == True:
+            if [x for x in lista_nota if ((x.pozicija == (i.pozicija + i.trajanje + 1)) and (x.ton == i.ton) and (x.predikat == i.predikat))]:
+                pygame.draw.rect(screen, boja_note_vani, [(pozicija2Pixel(i.pozicija)+2-bg_scroll_x+trajanje2Pixel(i.trajanje)-1+x_offset)*display_scale_factor,(ton2Pixel(i.ton)+2+bg_scroll_y+1+y_offset)*display_scale_factor,3*display_scale_factor,1*display_scale_factor] )
+            else:
+                pygame.draw.rect(screen, boja_note_vani, [(pozicija2Pixel(i.pozicija)+2-bg_scroll_x+trajanje2Pixel(i.trajanje)-1+x_offset)*display_scale_factor,(ton2Pixel(i.ton)+2+bg_scroll_y+1+y_offset)*display_scale_factor,1*display_scale_factor,1*display_scale_factor] )
+
+    #print chordnames on the screen
+    for chord in list_chords:
+        #pygame.draw.rect(screen, lista_boja[i.predikat*2], [(pozicija2Pixel(i.pozicija)+2-bg_scroll_x)*display_scale_factor,(ton2Pixel(i.ton)+2+bg_scroll_y)*display_scale_factor,(trajanje2Pixel(i.trajanje)-1)*display_scale_factor,3*display_scale_factor] )
+        for i,j in enumerate(chord.ton):
+            blit_slovo((i*4)+(pozicija2Pixel(chord.pozicija)+2-bg_scroll_x+x_offset),8+y_offset,slovoPozicija(j))
+
+    #print markup on the screen
+    for markup in list_markup:
+        #pygame.draw.rect(screen, lista_boja[i.predikat*2], [(pozicija2Pixel(i.pozicija)+2-bg_scroll_x)*display_scale_factor,(ton2Pixel(i.ton)+2+bg_scroll_y)*display_scale_factor,(trajanje2Pixel(i.trajanje)-1)*display_scale_factor,3*display_scale_factor] )
+        for i,j in enumerate(markup.ton):
+            blit_slovo((i*4)+(pozicija2Pixel(markup.pozicija)+2-bg_scroll_x+x_offset),79+y_offset,slovoPozicija(j))
+
+    #show measure number
+    for i,j in enumerate("B" + str(int(obj_cursor.pozicija/16)+1+3+takt_offset)):
+    #for i,j in enumerate("B" + str(int(obj_cursor.pozicija/16)+1)):
+        blit_slovo((i*4)+20,0+y_offset,slovoPozicija(j))
+
+    #plavi okvir
+    #pygame.draw.rect(screen, (200, 200, 200), [0*display_scale_factor,(0+y_offset)*display_scale_factor,17*display_scale_factor,90*2*display_scale_factor] )
+    blit_kljucevi(0,-15+bg_scroll_y+y_offset)
+    #pygame.draw.rect(screen, (100, 100, 100), [0*display_scale_factor,0*display_scale_factor,17*display_scale_factor,90*display_scale_factor] )
     blit_kljucevi(0,-15+bg_scroll_y)
+    blit_rub(0,0+y_offset)
     blit_rub(0,0)
+
     pygame.display.flip()
     clock.tick(60)
 
