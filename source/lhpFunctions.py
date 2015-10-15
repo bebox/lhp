@@ -6,7 +6,7 @@ def pozicijaSprite(broj, x_velicina):
   return(pixel)
 
 #spriteSlova = ["A", "B", "C", "D", "E", "F", "G", "H", "i", "s", "e"]
-spriteSlova = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "s", ",", "'", "1", "2", "4", "8", "6", "3", ".", "5", "7", "9", "0", "M", "B", "I", "N", "S", "E", "R", "T", " ", "-", "V","U" ,"A", "L", "O", "D"]
+spriteSlova = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "s", ",", "'", "1", "2", "4", "8", "6", "3", ".", "5", "7", "9", "0", "M", "B", "I", "N", "S", "E", "R", "T", " ", "-", "V","U" ,"A", "L", "O", "D", ":", "m", "j", "n", "u", "C", "H", "k", "l", "o", "p", "r", "t", "v", "z", "K", "P", "%", "/"]
 
 def pixel2Ton(pixel):
   rezolucija = 90
@@ -126,6 +126,22 @@ def trajanje2Pixel(trajanje):
   return(pixel)
 
 class dodaj_notu(object):
+  def __init__(self, pozicija, ton, trajanje, predikat):
+    self.pozicija=pozicija
+    self.ton=ton
+    self.trajanje=trajanje
+    self.predikat=predikat
+    self.ligatura=False
+
+class add_chord(object):
+  def __init__(self, pozicija, ton, trajanje, predikat):
+    self.pozicija=pozicija
+    self.ton=ton
+    self.trajanje=trajanje
+    self.predikat=predikat
+    self.ligatura=False
+
+class add_markup(object):
   def __init__(self, pozicija, ton, trajanje, predikat):
     self.pozicija=pozicija
     self.ton=ton
