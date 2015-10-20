@@ -182,9 +182,9 @@ while not crashed:
             if event.key == pygame.K_LEFT:
                 cursor_x -= 52*cursor_size*timeSignature[1]
             if event.key == pygame.K_UP:
-                cursor_y -= 36
+                cursor_y -= 31
             if event.key == pygame.K_DOWN:
-                cursor_y += 36
+                cursor_y += 31
 #                    swap_cursor_ton = obj_cursor.ton
 #                    #swap_cursor_pozicija = obj_cursor.pozicija
 #                    chord_mode = 1
