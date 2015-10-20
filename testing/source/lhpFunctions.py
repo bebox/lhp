@@ -1,12 +1,14 @@
 import operator
 
-def pozicijaSprite(broj, x_velicina):
-  #vraca pixel na kojem se sprite nalazi
-  pixel = broj * (x_velicina + 1) #1 je prazan red izmedu spritova
-  return(pixel)
+spriteFont = [
+    "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
+    " ", "!", "\"", "#", "$", "%", "", "'", "(", ")", "*", "+", ",", "-", ".", "/", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ":", ";", "<", "=", ">", "?",
+    "", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "[", "\\", "]", "^", "_",
+    "`", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "{", "|", "}", "~", ""
+    ]
 
-#spriteSlova = ["A", "B", "C", "D", "E", "F", "G", "H", "i", "s", "e"]
-spriteSlova = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "s", ",", "'", "1", "2", "4", "8", "6", "3", ".", "5", "7", "9", "0", "M", "B", "I", "N", "S", "E", "R", "T", " ", "-", "V","U" ,"A", "L", "O", "D", ":", "m", "j", "n", "u", "C", "H", "k", "l", "o", "p", "r", "t", "v", "z", "K", "P", "%", "/"]
+loremIpsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque posuere, est eu finibus posuere, velit nunc faucibus orci, eget congue ligula erat eu nisi. Mauris sed accumsan risus. Nulla pretium urna eu ante consequat lobortis. Suspendisse non arcu porta, aliquam ante eu, ornare tellus. Ut vestibulum vel ex quis consequat. Phasellus auctor fringilla orci, ac viverra metus pulvinar at. Suspendisse non lectus eget justo dapibus scelerisque. Nullam nec venenatis lorem, in elementum sem. Cras sollicitudin ligula vitae nibh dignissim sagittis. Duis vitae finibus nibh. Maecenas ut orci a elit tristique porta quis in massa. Suspendisse id mattis mi, eu dapibus enim. Praesent sodales ante eget ligula euismod, vel pulvinar nibh tempor."
+
 
 def pixel2Ton(pixel):
   rezolucija = 90
@@ -68,10 +70,6 @@ kljucevi = {
 
 def removeLily(slovo):
   return(slovo.replace(',', '').replace('\'', '').upper())
-
-def slovoPozicija(slovo):
-  for i in [i for i,x in enumerate(spriteSlova) if x == slovo]:
-    return(i)
 
 rijecnikNotnihVrijednosti = {
   0 : "16",
