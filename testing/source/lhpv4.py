@@ -69,6 +69,27 @@ pygame.display.set_caption('lilypond hybride pianoroll 0.1')
 #color_black = (0,0,0)
 color_white = (255,255,255)
 color_git = (77,78,80)
+
+listSnap = ["64", "32", "16", "8", "4", "2", "1"]
+hashSnap = {
+    "1" : 4,
+    "2" : 2,
+    "4" : 1,
+    "8" : 1/2,
+    "16" : 1/4,
+    "32" : 1/8,
+    "64" : 1/16,
+}
+listBeat = ["64", "32", "16", "8", "4", "2", "1"]
+hashBeat = {
+    "1" : 4,
+    "2" : 2,
+    "4" : 1,
+    "8" : 1/2,
+    "16" : 1/4,
+    "32" : 1/8,
+    "64" : 1/16,
+}
 #
 #boja_note_vani = (113, 50, 255)
 #boja_note_nutra = (203, 139, 57)
@@ -101,7 +122,8 @@ picBarLines = pygame.image.load('../image/barLines.png')
 picGridLine = pygame.image.load('../image/gridLine.png')
 picGridDot = pygame.image.load('../image/gridDot.png')
 picCursor = pygame.image.load('../image/cursor.png')
-#
+picNote = pygame.image.load('../image/note.png')
+
 ##loading cursor sprites into list
 ##cursor_color = 0
 #list_sprite_cursor = []
@@ -120,7 +142,7 @@ for column in range(0,4):
 ##bliting functions
 ##bliting of a letter
 def blitFont(x, y, letter):
-        screen.blit(pygame.transform.scale(listSpriteFont[letter], (4*display_scale_factor_x, 6*display_scale_factor_y)), (x*display_scale_factor_x, y*display_scale_factor_y))
+        screen.blit(pygame.transform.scale(listSpriteFont[letter], (4*display_scale_factor_x*3, 6*display_scale_factor_y*3)), (x*display_scale_factor_x*3, y*display_scale_factor_y*3))
 
 ##bliting of a barLine
 def blitBarLine(x, y):
@@ -146,6 +168,15 @@ picCursor.set_clip(pygame.Rect(47,0,5,52))
 listCursor.append(picCursor.subsurface(picCursor.get_clip()))
 picCursor.set_clip(pygame.Rect(26,0,1,52))
 listCursor.append(picCursor.subsurface(picCursor.get_clip()))
+
+listNote = []
+picNote.set_clip(pygame.Rect(0,0,14,24))
+listNote.append(picNote.subsurface(picNote.get_clip()))
+picNote.set_clip(pygame.Rect(15,0,1,24))
+listNote.append(picNote.subsurface(picNote.get_clip()))
+picNote.set_clip(pygame.Rect(16,0,14,24))
+listNote.append(picNote.subsurface(picNote.get_clip()))
+
 #pic_cursor.set_clip(pygame.Rect(0,0,3,7))
 #list_sprite_cursor.append(pic_cursor.subsurface(pic_cursor.get_clip()))
 
@@ -158,13 +189,22 @@ def blitCursor(x, y, velicina):
             screen.blit(pygame.transform.scale(listCursor[2], (1*display_scale_factor_x, 52*display_scale_factor_y)), (i+x*display_scale_factor_x, y*display_scale_factor_y))
         #wide 5 pix
         screen.blit(pygame.transform.scale(listCursor[1], (5*display_scale_factor_x, 52*display_scale_factor_y)), ((velicina*52*4-5)+x*display_scale_factor_x, y*display_scale_factor_y))
+
+def blitNote(x, y, velicina):
+        #wide 5 pix
+        screen.blit(pygame.transform.scale(listNote[0], (14*display_scale_factor_x, 24*display_scale_factor_y)), (x*display_scale_factor_x, y*display_scale_factor_y))
+        #should be 43 when it is big 1/4
+        for i in range(int(velicina*52*4)):
+            screen.blit(pygame.transform.scale(listNote[2], (1*display_scale_factor_x, 24*display_scale_factor_y)), (14+i+x*display_scale_factor_x, y*display_scale_factor_y))
+        #wide 5 pix
+        screen.blit(pygame.transform.scale(listNote[2], (14*display_scale_factor_x, 24*display_scale_factor_y)), (14+velicina*52*4+x*display_scale_factor_x, y*display_scale_factor_y))
 #
 base_x = 50
 base_y = display_height/2
 cursor_x = 0
 cursor_y = 0
-cursor_size = 1
-cursor_snap = 1
+cursor_size = 4
+cursor_snap = 4
 timeSignature = (3, 4)
 while not crashed:
     for event in pygame.event.get():
@@ -172,6 +212,13 @@ while not crashed:
             crashed = True
 
 ##Keyboard buttons without MODS
+        if event.type == pygame.MOUSEMOTION:
+            print ("mouse at (%d, %d)" % event.pos)
+            print(int(event.pos[1]/31))
+            cursor_y = 31*int(event.pos[1]/31)-279
+            cursor_x = int((event.pos[0]-30)/208)*208
+            print(cursor_x)
+
         if event.type == pygame.KEYDOWN:
 #            if pygame.key.get_mods() == 0:
 #
@@ -180,9 +227,9 @@ while not crashed:
 #                #= enter chord mode
             if pygame.key.get_mods() == 0:
                 if event.key == pygame.K_RIGHT:
-                    cursor_x += 208*cursor_snap
+                    cursor_x += 208*hashSnap[listSnap[cursor_snap]]
                 if event.key == pygame.K_LEFT:
-                    cursor_x -= 208*cursor_snap
+                    cursor_x -= 208*hashSnap[listSnap[cursor_snap]]
                 if event.key == pygame.K_UP:
                     cursor_y -= 31
                 if event.key == pygame.K_DOWN:
@@ -190,9 +237,13 @@ while not crashed:
 
             if pygame.key.get_mods() & pygame.KMOD_LSHIFT:
                 if event.key == pygame.K_RIGHT:
-                    cursor_size += cursor_snap
+                    cursor_size += 1
                 if event.key == pygame.K_LEFT:
-                    cursor_size -= cursor_snap
+                    cursor_size -= 1
+                if event.key == pygame.K_UP:
+                    cursor_snap += 1
+                if event.key == pygame.K_DOWN:
+                    cursor_snap -= 1
 #
 #    #flipanje
     screen.fill(color_git)
@@ -214,7 +265,8 @@ while not crashed:
     for i in range(0,5):
         blitBarLine(base_x+(i*208*timeSignature[0]),base_y-(290/2))
 
-    blitCursor(base_x+cursor_x+4,base_y-(54/2)+cursor_y+2, cursor_size)
+    blitCursor(base_x+cursor_x+4,base_y-(54/2)+cursor_y+2, hashBeat[listBeat[cursor_size]])
+    #blitNote(base_x+cursor_x+4,base_y-cursor_y, hashBeat[listBeat[cursor_size]])
 
 #    blit_prvi_takt(18-bg_scroll_x,bg_scroll_y-15+30)
 #
@@ -274,9 +326,12 @@ while not crashed:
 #            blit_slovo((i*4)+112,90-5,slovoPozicija(j))
 #
 #    #show old mod
-#    if markup_mode:
-#    for i,letter in enumerate("Daniel debeli Kreko"): #tu denes loremIpsum varijablu
-#        blitFont((i%40)*4,int(i/40)*6, spriteFont.index(letter))
+    #blit snap
+    for i,letter in enumerate("Snap: " + str(listSnap[cursor_snap])): #tu denes loremIpsum varijablu
+        blitFont((i%40)*4,int(i/40)*6, spriteFont.index(letter))
+    #blit beat
+    for i,letter in enumerate("Size: " + str(listBeat[cursor_size])): #tu denes loremIpsum varijablu
+        blitFont((i%40)*4,int(i/40)*6+7, spriteFont.index(letter))
 #
 #
 #    #plavi okvir
