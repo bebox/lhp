@@ -164,7 +164,8 @@ base_y = display_height/2
 cursor_x = 0
 cursor_y = 0
 cursor_size = 1
-timeSignature = (4, 4)
+cursor_snap = 1
+timeSignature = (3, 4)
 while not crashed:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -177,36 +178,41 @@ while not crashed:
 #                #modes defined
 #
 #                #= enter chord mode
-            if event.key == pygame.K_RIGHT:
-                cursor_x += 52*cursor_size*timeSignature[1]
-            if event.key == pygame.K_LEFT:
-                cursor_x -= 52*cursor_size*timeSignature[1]
-            if event.key == pygame.K_UP:
-                cursor_y -= 31
-            if event.key == pygame.K_DOWN:
-                cursor_y += 31
-#                    swap_cursor_ton = obj_cursor.ton
-#                    #swap_cursor_pozicija = obj_cursor.pozicija
-#                    chord_mode = 1
-#                    #obj_cursor.bg_scroll_x = 0
-#                    #obj_cursor.bg_scroll_y = 0
-#                    #obj_cursor.pozicija = 0
-#                    obj_cursor.ton = 32
-#                    obj_cursor.trajanje = 15
+            if pygame.key.get_mods() == 0:
+                if event.key == pygame.K_RIGHT:
+                    cursor_x += 208*cursor_snap
+                if event.key == pygame.K_LEFT:
+                    cursor_x -= 208*cursor_snap
+                if event.key == pygame.K_UP:
+                    cursor_y -= 31
+                if event.key == pygame.K_DOWN:
+                    cursor_y += 31
+
+            if pygame.key.get_mods() & pygame.KMOD_LSHIFT:
+                if event.key == pygame.K_RIGHT:
+                    cursor_size += cursor_snap
+                if event.key == pygame.K_LEFT:
+                    cursor_size -= cursor_snap
 #
 #    #flipanje
     screen.fill(color_git)
+    #bliting 
     for y in range(0,4):
         for i in range(0,20):
-            blitGridDot(base_x+(i*52)+(52/2),base_y-4-31+(y*62)-(62))
+            #if i%timeSignature[0] != 0:
+                #208 is beat lenght
+                blitGridDot(base_x+((i*208/timeSignature[1])+(208/timeSignature[1]/2)),base_y-4-31+(y*62)-(62))
+    #bliting horizontal barlines
     for y in range(0,5):
         for i in range(0,5):
             blitBarLines(base_x+(i*208),base_y-(6/2)+(y*62)-(62*2))
+    #bliting grid lines
     for i in range(0,5):
-        if i%4 != 4:
+        if i%timeSignature[0] != 0:
             blitGridLine(base_x+(i*208), base_y-(290/2))
+    #bliting bar lines
     for i in range(0,5):
-        blitBarLine(base_x+(i*208*4),base_y-(290/2))
+        blitBarLine(base_x+(i*208*timeSignature[0]),base_y-(290/2))
 
     blitCursor(base_x+cursor_x+4,base_y-(54/2)+cursor_y+2, cursor_size)
 
