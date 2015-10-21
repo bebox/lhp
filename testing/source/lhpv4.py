@@ -1,54 +1,8 @@
 #!/usr/bin/env python3
 
-#import argparse
-#import subprocess
-#parser = argparse.ArgumentParser()
-#parser.add_argument("-m", "--midiout", help="enable midi output", action="store_true")
-#parser.add_argument("-c", "--midiport", type=int,  help="connect to midi port")
-#parser.add_argument("-l", "--listmidiports",  help="list midi ports and exit", action="store_true")
-#parser.add_argument("-p", "--projectname",  help="project name, use *.lhp extension", type=str)
-#parser.add_argument('--version', action='version', version=subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).strip().decode("utf-8"))
-#args = parser.parse_args()
-
 import pygame_sdl2 as pygame
 from pygame_sdl2.locals import *
 from lhpFunctions import *
-
-#import operator
-#import pickle #used for saving and loading projects
-#import math #used for scrolling screen
-#import re
-#
-#if args.listmidiports or args.midiport:
-#    args.midiout = True
-#
-#if args.midiout:
-#    import time
-#    import rtmidi
-#    midiout = rtmidi.MidiOut()
-#    available_ports = midiout.get_ports()
-#    print("MIDIout enabled")
-#
-#if args.listmidiports:
-#    for i,y in enumerate(available_ports):
-#        print(i+1, ":", y)
-#    quit()
-#
-#if args.midiport:
-#    midiout.open_port(args.midiport-1)
-#    print("lhp connected to", available_ports[args.midiport-1])
-#elif not args.midiport and args.midiout:
-#    midiout.open_virtual_port("lhp")
-#    print("Created virtual MIDIport: lhp")
-#
-#if args.projectname:
-#    print("Project name:", args.projectname)
-#    #lista_nota = pickle.load(open( args.projectname, "rb" ))
-#
-#else:
-#    args.projectname = "save.lhp"
-
-#Start of the program ###########################################
 
 pygame.init()
 
@@ -57,65 +11,26 @@ display_scale_factor_x = 1 #display scale factor becouse original resolution is 
 display_scale_factor_y = 1 #display scale factor becouse original resolution is 160x90
 display_width = 1200*display_scale_factor_x #this is graphics resolution, hardcoded
 display_height = 600*display_scale_factor_y #this is graphics resolution, hardcoded
+zoom_x = int(208)
+zoom_y = int(31)
+bar = 1
 
 #screen is a pygame default window
 
 screen = pygame.display.set_mode((display_width,display_height))
 
 #program caption title
-pygame.display.set_caption('lilypond hybride pianoroll 0.1')
+pygame.display.set_caption('lilypond hybride pianoroll' + get_git_revision_short_hash())
 
 #RGB colors definitions
 #color_black = (0,0,0)
-color_white = (255,255,255)
-color_git = (77,78,80)
 
-listSnap = ["64", "32", "16", "8", "4", "2", "1"]
-hashSnap = {
-    "1" : 4,
-    "2" : 2,
-    "4" : 1,
-    "8" : 1/2,
-    "16" : 1/4,
-    "32" : 1/8,
-    "64" : 1/16,
-}
-listBeat = ["64", "32", "16", "8", "4", "2", "1"]
-hashBeat = {
-    "1" : 4,
-    "2" : 2,
-    "4" : 1,
-    "8" : 1/2,
-    "16" : 1/4,
-    "32" : 1/8,
-    "64" : 1/16,
-}
-#
-#boja_note_vani = (113, 50, 255)
-#boja_note_nutra = (203, 139, 57)
-#
-#boja_note_povisilica_vani = (0, 255, 255)
-#boja_note_povisilica_nutra = (0, 255, 255)
-#
-#boja_note_snizilica_vani = (255, 0, 255)
-#boja_note_snizilica_nutra = (255, 0, 255)
-#
-#boja_pauze_vani = (0, 148, 0)
-#boja_pauze_nutra = (48, 212, 0)
-#
-#lista_boja = [boja_note_vani, boja_note_nutra, boja_note_vani, boja_note_nutra, boja_note_vani, boja_note_nutra, boja_pauze_vani, boja_pauze_nutra]
-#
 ##pygame clock
 clock = pygame.time.Clock()
 ##variable which exits the program
 crashed = False
-#
-#pic_prvi_takt = pygame.image.load('../image/prvi_takt.png')
-#pic_drugi_takt = pygame.image.load('../image/drugi_takt.png')
-#pic_zadnji_takt = pygame.image.load('../image/zadnji_takt.png')
-#pic_plavi_okvir = pygame.image.load('../image/rub_plavi.png')
-#pic_kljucevi = pygame.image.load('../image/kljucevi.png')
-#pic_cursor = pygame.image.load('../image/cursor.png')
+
+#pictures loaded
 picSpriteFont = pygame.image.load('../image/tom-thumb-new.png')
 picBarLine = pygame.image.load('../image/barLine.png')
 picBarLines = pygame.image.load('../image/barLines.png')
@@ -124,13 +39,6 @@ picGridDot = pygame.image.load('../image/gridDot.png')
 picCursor = pygame.image.load('../image/cursor.png')
 picNote = pygame.image.load('../image/note.png')
 
-##loading cursor sprites into list
-##cursor_color = 0
-#list_sprite_cursor = []
-#for i in range(0,6):
-#    pic_cursor.set_clip(pygame.Rect(pozicijaSprite(i,3),0,3,7))
-#    list_sprite_cursor.append(pic_cursor.subsurface(pic_cursor.get_clip()))
-#
 ##loading letter sprites into list
 listSpriteFont = []
 ##defining field
@@ -138,7 +46,7 @@ for column in range(0,4):
     for row in range(0, 32):
         picSpriteFont.set_clip(pygame.Rect(row*4,column*6,4,6))
         listSpriteFont.append(picSpriteFont.subsurface(picSpriteFont.get_clip()))
-#
+
 ##bliting functions
 ##bliting of a letter
 def blitFont(x, y, letter):
@@ -149,8 +57,9 @@ def blitBarLine(x, y):
         screen.blit(pygame.transform.scale(picBarLine, (6*display_scale_factor_x, 290*display_scale_factor_y)), (x*display_scale_factor_x, y*display_scale_factor_y))
 
 ##bliting of a barLines
-def blitBarLines(x, y):
-        screen.blit(pygame.transform.scale(picBarLines, (208*display_scale_factor_x, 7*display_scale_factor_y)), (x*display_scale_factor_x, y*display_scale_factor_y))
+def blitBarLines(x, y, zoom):
+        for i in range(zoom_x):
+            screen.blit(pygame.transform.scale(picBarLines, (1*display_scale_factor_x, 7*display_scale_factor_y)), (i+x*display_scale_factor_x, y*display_scale_factor_y))
 
 ##bliting of a gridLine
 def blitGridLine(x, y):
@@ -161,6 +70,7 @@ def blitGridDot(x, y):
         screen.blit(pygame.transform.scale(picGridDot, (8*display_scale_factor_x, 8*display_scale_factor_y)), (x*display_scale_factor_x, y*display_scale_factor_y))
 
 
+##bliting of a cursor
 listCursor = []
 picCursor.set_clip(pygame.Rect(0,0,5,52))
 listCursor.append(picCursor.subsurface(picCursor.get_clip()))
@@ -169,18 +79,6 @@ listCursor.append(picCursor.subsurface(picCursor.get_clip()))
 picCursor.set_clip(pygame.Rect(26,0,1,52))
 listCursor.append(picCursor.subsurface(picCursor.get_clip()))
 
-listNote = []
-picNote.set_clip(pygame.Rect(0,0,14,24))
-listNote.append(picNote.subsurface(picNote.get_clip()))
-picNote.set_clip(pygame.Rect(15,0,1,24))
-listNote.append(picNote.subsurface(picNote.get_clip()))
-picNote.set_clip(pygame.Rect(16,0,14,24))
-listNote.append(picNote.subsurface(picNote.get_clip()))
-
-#pic_cursor.set_clip(pygame.Rect(0,0,3,7))
-#list_sprite_cursor.append(pic_cursor.subsurface(pic_cursor.get_clip()))
-
-##bliting of a cursor
 def blitCursor(x, y, velicina):
         #wide 5 pix
         screen.blit(pygame.transform.scale(listCursor[0], (5*display_scale_factor_x, 52*display_scale_factor_y)), (x*display_scale_factor_x, y*display_scale_factor_y))
@@ -190,6 +88,15 @@ def blitCursor(x, y, velicina):
         #wide 5 pix
         screen.blit(pygame.transform.scale(listCursor[1], (5*display_scale_factor_x, 52*display_scale_factor_y)), ((velicina*52*4-5)+x*display_scale_factor_x, y*display_scale_factor_y))
 
+#bliting note
+listNote = []
+picNote.set_clip(pygame.Rect(0,0,14,24))
+listNote.append(picNote.subsurface(picNote.get_clip()))
+picNote.set_clip(pygame.Rect(15,0,1,24))
+listNote.append(picNote.subsurface(picNote.get_clip()))
+picNote.set_clip(pygame.Rect(16,0,14,24))
+listNote.append(picNote.subsurface(picNote.get_clip()))
+
 def blitNote(x, y, velicina):
         #wide 5 pix
         screen.blit(pygame.transform.scale(listNote[0], (14*display_scale_factor_x, 24*display_scale_factor_y)), (x*display_scale_factor_x, y*display_scale_factor_y))
@@ -198,14 +105,35 @@ def blitNote(x, y, velicina):
             screen.blit(pygame.transform.scale(listNote[2], (1*display_scale_factor_x, 24*display_scale_factor_y)), (14+i+x*display_scale_factor_x, y*display_scale_factor_y))
         #wide 5 pix
         screen.blit(pygame.transform.scale(listNote[2], (14*display_scale_factor_x, 24*display_scale_factor_y)), (14+velicina*52*4+x*display_scale_factor_x, y*display_scale_factor_y))
-#
+
 base_x = 50
 base_y = display_height/2
-cursor_x = 0
-cursor_y = 0
-cursor_size = 4
+cursor_grid = 3
 cursor_snap = 4
 timeSignature = (3, 4)
+pozicija_x = 0
+pozicija_x_staro = 0
+pozicija_y = 0
+pozicija_y_staro = 0
+
+obj_cursor = cursor(1, 0, 4)
+
+#convert pixel into x:position
+def pixel2Pos(pixel):
+    pozicija_x = int((pixel-base_x+zoom_x)/zoom_x) #-1
+    return(pozicija_x)
+#convert pixel into y:tone
+def pixel2Tone(pixel):
+    pozicija_y = int(-(pixel-base_y+zoom_y*10)/zoom_y)+10
+    return(pozicija_y)
+def pos2Pixel(pos):
+    pixel = (pos*zoom_x)+base_x-zoom_x
+    return(pixel)
+def tone2Pixel(pos):
+    pixel = (-pos*zoom_y+base_y-zoom_y*10)+10*zoom_y
+    return(pixel)
+
+
 while not crashed:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -213,33 +141,42 @@ while not crashed:
 
 ##Keyboard buttons without MODS
         if event.type == pygame.MOUSEMOTION:
-            print ("mouse at (%d, %d)" % event.pos)
-            print(int(event.pos[1]/31))
-            cursor_y = 31*int(event.pos[1]/31)-279
-            cursor_x = int((event.pos[0]-30)/208)*208
-            print(cursor_x)
+            #print ("mouse at (%d, %d)" % event.pos)
+            snap = roundSnap[hashSnap[listSnap[cursor_snap]]]
+            pozicija_y = round((-(event.pos[1]-base_y+zoom_y*10)/zoom_y)+10)
+            pozicija_x = int( ((event.pos[0]-base_x+zoom_x)/zoom_x) * snap)/snap
+            #pozicija_x = pixel2Pos(event.pos[0])
+            obj_cursor.pozicija = pozicija_x
+            #pozicija_y = pixel2Tone(event.pos[1])
+            obj_cursor.ton = pozicija_y
+            #print(pos2Pixel(pozicija_x))
+            #print(tone2Pixel(pozicija_y))
+            if pozicija_x != pozicija_x_staro or pozicija_y != pozicija_y_staro:
+                pozicija_x_staro = pozicija_x
+                pozicija_y_staro = pozicija_y
+                print("X:" + str(pozicija_x) + ", Y:" + str(pozicija_y))
+                #print ("mouse at (%d, %d)" % event.pos)
 
         if event.type == pygame.KEYDOWN:
-#            if pygame.key.get_mods() == 0:
-#
-#                #modes defined
-#
-#                #= enter chord mode
+
             if pygame.key.get_mods() == 0:
                 if event.key == pygame.K_RIGHT:
-                    cursor_x += 208*hashSnap[listSnap[cursor_snap]]
+                    obj_cursor.pozicija += 1*hashSnap[listSnap[cursor_snap]]
                 if event.key == pygame.K_LEFT:
-                    cursor_x -= 208*hashSnap[listSnap[cursor_snap]]
+                    obj_cursor.pozicija -= 1*hashSnap[listSnap[cursor_snap]]
                 if event.key == pygame.K_UP:
-                    cursor_y -= 31
+                    obj_cursor.ton += 1
                 if event.key == pygame.K_DOWN:
-                    cursor_y += 31
+                    obj_cursor.ton -= 1
+
+                if event.key == pygame.K_p:
+                    print(obj_cursor.pozicija, obj_cursor.ton, obj_cursor.trajanje)
 
             if pygame.key.get_mods() & pygame.KMOD_LSHIFT:
                 if event.key == pygame.K_RIGHT:
-                    cursor_size += 1
+                    obj_cursor.trajanje += 1
                 if event.key == pygame.K_LEFT:
-                    cursor_size -= 1
+                    obj_cursor.trajanje -= 1
                 if event.key == pygame.K_UP:
                     cursor_snap += 1
                 if event.key == pygame.K_DOWN:
@@ -249,88 +186,32 @@ while not crashed:
     screen.fill(color_git)
     #bliting 
     for y in range(0,4):
-        for i in range(0,20):
-            #if i%timeSignature[0] != 0:
-                #208 is beat lenght
-                blitGridDot(base_x+((i*208/timeSignature[1])+(208/timeSignature[1]/2)),base_y-4-31+(y*62)-(62))
+        for i in range(0, int(timeSignature[1]*timeSignature[0]*hashGrid[listGrid[cursor_grid]])*bar):
+            #if hashGrid[listGrid[cursor_grid]] < timeSignature[1]:
+                #zoom_x is beat lenght
+                #blitGridDot(base_x+((i*zoom_x/timeSignature[1])+(zoom_x/timeSignature[1]/2)),base_y-4-31+(y*62)-(62))
+                blitGridDot(base_x+((zoom_x)*i),base_y-4-31+(y*62)-(62))
     #bliting horizontal barlines
     for y in range(0,5):
-        for i in range(0,5):
-            blitBarLines(base_x+(i*208),base_y-(6/2)+(y*62)-(62*2))
+        for i in range(0,timeSignature[0]*(bar)):
+            blitBarLines(base_x+(i*zoom_x),base_y-(6/2)+(y*62)-(62*2), zoom_x)
     #bliting grid lines
-    for i in range(0,5):
-        if i%timeSignature[0] != 0:
-            blitGridLine(base_x+(i*208), base_y-(290/2))
+    #for i in range(0,timeSignature[0]*(bar)):
+    #    if i%timeSignature[0] != 0:
+    #        blitGridLine(base_x+(i*zoom_x), base_y-(290/2))
     #bliting bar lines
-    for i in range(0,5):
-        blitBarLine(base_x+(i*208*timeSignature[0]),base_y-(290/2))
+    #for i in range(0,bar):
+    #    blitBarLine(base_x+(i*zoom_x*timeSignature[0]),base_y-(290/2))
 
-    blitCursor(base_x+cursor_x+4,base_y-(54/2)+cursor_y+2, hashBeat[listBeat[cursor_size]])
-    #blitNote(base_x+cursor_x+4,base_y-cursor_y, hashBeat[listBeat[cursor_size]])
+    blitCursor(pos2Pixel(obj_cursor.pozicija), tone2Pixel(obj_cursor.ton)-(52/2), hashSnap[listSnap[obj_cursor.trajanje]])
+    #blitNote(base_x+cursor_x+4,base_y-cursor_y, hashSnap[listSnap[cursor_size]])
 
-#    blit_prvi_takt(18-bg_scroll_x,bg_scroll_y-15+30)
-#
-#    #if drugi_takt_lijevi-bg_scroll_x < 67:
-#    for i in range(0, broj_taktova):
-#      blit_drugi_takt(drugi_takt_desni+i*96-bg_scroll_x,bg_scroll_y-15+30)
-#
-#    blit_zadnji_takt(drugi_takt_desni+broj_taktova*96-bg_scroll_x,bg_scroll_y-15+30)
-#
-#
-#    for i in lista_nota:
-#        pygame.draw.rect(screen, lista_boja[i.predikat*2], [(pozicija2Pixel(i.pozicija)+2-bg_scroll_x)*display_scale_factor_x,(ton2Pixel(i.ton)+2+bg_scroll_y)*display_scale_factor_y,(trajanje2Pixel(i.trajanje)-1)*display_scale_factor_x,3*display_scale_factor_y] )
-#        pygame.draw.rect(screen, lista_boja[i.predikat*2+1], [(pozicija2Pixel(i.pozicija)+3-bg_scroll_x)*display_scale_factor_x,(ton2Pixel(i.ton)+3+bg_scroll_y+predikati[i.predikat])*display_scale_factor_y,(trajanje2Pixel(i.trajanje)-3)*display_scale_factor_x,(3-2)*display_scale_factor_y] )
-#        #show ligatures
-#        if i.ligatura == True:
-#            if [x for x in lista_nota if ((x.pozicija == (i.pozicija + i.trajanje + 1)) and (x.ton == i.ton) and (x.predikat == i.predikat))]:
-#                pygame.draw.rect(screen, boja_note_vani, [(pozicija2Pixel(i.pozicija)+2-bg_scroll_x+trajanje2Pixel(i.trajanje)-1)*display_scale_factor_x,(ton2Pixel(i.ton)+2+bg_scroll_y+1)*display_scale_factor_y,3*display_scale_factor_x,1*display_scale_factor_y] )
-#            else:
-#                pygame.draw.rect(screen, boja_note_vani, [(pozicija2Pixel(i.pozicija)+2-bg_scroll_x+trajanje2Pixel(i.trajanje)-1)*display_scale_factor_x,(ton2Pixel(i.ton)+2+bg_scroll_y+1)*display_scale_factor_y,1*display_scale_factor_x,1*display_scale_factor_y] )
-#
-#    #print chordnames on the screen
-#    for chord in list_chords:
-#        #pygame.draw.rect(screen, lista_boja[i.predikat*2], [(pozicija2Pixel(i.pozicija)+2-bg_scroll_x)*display_scale_factor,(ton2Pixel(i.ton)+2+bg_scroll_y)*display_scale_factor,(trajanje2Pixel(i.trajanje)-1)*display_scale_factor,3*display_scale_factor] )
-#        for i,j in enumerate(chord.ton):
-#            blit_slovo((i*4)+(pozicija2Pixel(chord.pozicija)+2-bg_scroll_x),8,slovoPozicija(j))
-#
-#    #print markup on the screen
-#    for markup in list_markup:
-#        #pygame.draw.rect(screen, lista_boja[i.predikat*2], [(pozicija2Pixel(i.pozicija)+2-bg_scroll_x)*display_scale_factor,(ton2Pixel(i.ton)+2+bg_scroll_y)*display_scale_factor,(trajanje2Pixel(i.trajanje)-1)*display_scale_factor,3*display_scale_factor] )
-#        for i,j in enumerate(markup.ton):
-#            blit_slovo((i*4)+(pozicija2Pixel(markup.pozicija)+2-bg_scroll_x),79,slovoPozicija(j))
-#
-#    blit_cursor(pozicija2Pixel(obj_cursor.pozicija)-bg_scroll_x,ton2Pixel(obj_cursor.ton)+bg_scroll_y,pozicija2Pixel(obj_cursor.pozicija)+trajanje2Pixel(obj_cursor.trajanje)-bg_scroll_x,ton2Pixel(obj_cursor.ton)+bg_scroll_y,obj_cursor.sprite)
-#
-#    #show lilypond note value
-#    for i,j in enumerate(kljucevi[obj_cursor.ton][0] + kljucevi[obj_cursor.ton][1] + rijecnikNotnihVrijednosti[obj_cursor.trajanje]):
-#        blit_slovo((i*4)+20,90-5,slovoPozicija(j))
-#
-#    #show measure number
-#    for i,j in enumerate("B" + str(int(obj_cursor.pozicija/16)+1+7)):
-#    #for i,j in enumerate("B" + str(int(obj_cursor.pozicija/16)+1)):
-#        blit_slovo((i*4)+20,0,slovoPozicija(j))
-#
-#    #show insert mod
-#    if insert_mode:
-#        for i,j in enumerate("-- INSERT --"):
-#            blit_slovo((i*4)+112,90-5,slovoPozicija(j))
-#
-#    #show old mod
-#    if old_mode:
-#        for i,j in enumerate("-- OLD --"):
-#            blit_slovo((i*4)+112,90-5,slovoPozicija(j))
-#
-#    #show old mod
-#    if chord_mode:
-#        for i,j in enumerate("-- CHORD --"):
-#            blit_slovo((i*4)+112,90-5,slovoPozicija(j))
-#
-#    #show old mod
-    #blit snap
+    ##blit snap
     for i,letter in enumerate("Snap: " + str(listSnap[cursor_snap])): #tu denes loremIpsum varijablu
         blitFont((i%40)*4,int(i/40)*6, spriteFont.index(letter))
-    #blit beat
-    for i,letter in enumerate("Size: " + str(listBeat[cursor_size])): #tu denes loremIpsum varijablu
+
+    #blit grid
+    for i,letter in enumerate("Grid: " + str(listGrid[cursor_grid])): #tu denes loremIpsum varijablu
         blitFont((i%40)*4,int(i/40)*6+7, spriteFont.index(letter))
 #
 #
