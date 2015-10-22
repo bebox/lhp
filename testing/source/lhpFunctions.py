@@ -34,7 +34,11 @@ hashMusic2Float = {
 }
 
 def listIndexStep(obj, lista, step):
-    return(lista[lista.index(obj)+step])
+    index = lista.index(obj)
+    if 0 < index+step < len(lista):
+        return(lista[index+step])
+    else:
+        return(obj)
 
 class dodaj_notu(object):
   def __init__(self, pozicija, ton, trajanje, predikat):

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import pygame_sdl2 as pygame
+import math
 from pygame_sdl2.locals import *
 from lhpFunctions import *
 
@@ -11,9 +12,14 @@ display_scale_factor_x = 1 #display scale factor becouse original resolution is 
 display_scale_factor_y = 1 #display scale factor becouse original resolution is 160x90
 display_width = 1200*display_scale_factor_x #this is graphics resolution, hardcoded
 display_height = 600*display_scale_factor_y #this is graphics resolution, hardcoded
-zoom_x = int(208/2)
+zoom_factor = 1
+zoom_x = int(208/zoom_factor)
 zoom_y = int(31)
-bar = 2
+bar = 10
+
+listZoomFactor = [32, 16, 8, 4, 2, 1, 1/2, 1/4, 1/8, 1/16]
+#listZoomFactor = [math.log(i*0.1+0.1) for i in range(1, 100)]
+#listZoomFactor = [i*i*0.1 for i in range(1, 100)]
 
 #screen is a pygame default window
 
@@ -60,7 +66,7 @@ def blitBarLine(x, y):
 def blitBarLines(x, y, zoom):
         #for i in range(zoom_x):
         #    screen.blit(pygame.transform.scale(picBarLines, (1*display_scale_factor_x, 7*display_scale_factor_y)), (i+x*display_scale_factor_x, y*display_scale_factor_y))
-        pixel = 52
+        pixel = int(208/zoom_factor)
         for i in range(int(zoom_x/pixel)):
             screen.blit(pygame.transform.scale(picBarLines, (pixel*display_scale_factor_x, 7*display_scale_factor_y)), (i*pixel+x*display_scale_factor_x, y*display_scale_factor_y))
 
@@ -112,13 +118,13 @@ def blitNote(x, y, velicina):
 base_x = 50
 base_y = display_height/2
 bar_grid = 8
-timeSignature = (3, 4)
+timeSignature = (4,4)
 pozicija_x = 0
 pozicija_x_staro = 0
 pozicija_y = 0
 pozicija_y_staro = 0
 
-obj_cursor = cursor(1, 0, 8, 4)
+obj_cursor = cursor(1, 0, timeSignature[1], timeSignature[1])
 
 #convert pixel into x:position
 def pixel2Pos(pixel):
@@ -159,6 +165,13 @@ while not crashed:
                 print("X:" + str(pozicija_x) + ", Y:" + str(pozicija_y))
                 #print ("mouse at (%d, %d)" % event.pos)
 
+        if event.type == pygame.MOUSEBUTTONUP:
+            print("oj")
+            if event.button == 4:
+                zoom_factor = listIndexStep(zoom_factor, listZoomFactor, +1)
+            if event.button == 5:
+                zoom_factor = listIndexStep(zoom_factor, listZoomFactor, -1)
+
         if event.type == pygame.KEYDOWN:
 
             if pygame.key.get_mods() == 0:
@@ -185,6 +198,7 @@ while not crashed:
                     obj_cursor.snap = listIndexStep(obj_cursor.snap, listMusic2Float, -1)
 #
 #    #flipanje
+    zoom_x = int(208/zoom_factor)
     screen.fill(color_git)
 
     #bliting grid dots
@@ -199,24 +213,24 @@ while not crashed:
 
     #bliting horizontal barlines
     for y in range(0,5):
-        for i in range(0,timeSignature[0]*(bar)):
+        for i in range(0,int(timeSignature[0]*bar*hashMusic2Float[timeSignature[1]])):
             blitBarLines(base_x+(i*zoom_x),base_y-(6/2)+(y*62)-(62*2), zoom_x)
 
     #bliting grid lines
     for i in range(0,timeSignature[0]*(bar)):
         if i%timeSignature[0] != 0:
-            blitGridLine(base_x+(i*zoom_x), base_y-(290/2))
+            blitGridLine(base_x+(int(i*zoom_x*hashMusic2Float[timeSignature[1]])), base_y-(290/2))
 
     #bliting bar lines
     for i in range(0,bar):
-        blitBarLine(base_x+(i*zoom_x*timeSignature[0]),base_y-(290/2))
+        blitBarLine(base_x+(int(i*zoom_x*timeSignature[0]*hashMusic2Float[timeSignature[1]])),base_y-(290/2))
 
-    blitCursor(pos2Pixel(obj_cursor.pozicija), tone2Pixel(obj_cursor.ton)-(52/2), hashMusic2Float[obj_cursor.trajanje])
+    blitCursor(pos2Pixel(obj_cursor.pozicija), tone2Pixel(obj_cursor.ton)-(52/2), hashMusic2Float[obj_cursor.trajanje]/zoom_factor)
     #blitNote(base_x+cursor_x+4,base_y-cursor_y, hashSnap[listSnap[cursor_size]])
 
     ##blit snap text
-    for i,letter in enumerate("Snap: " + str(obj_cursor.snap)): #tu denes loremIpsum varijablu
-        blitFont((i%40)*4,int(i/40)*6, spriteFont.index(letter))
+    for i,letter in enumerate("Time:" + str(timeSignature) + " Snap:" + str(obj_cursor.snap) + " Duration:" + str(obj_cursor.trajanje) + " Bar:" + str(obj_cursor.pozicija) + "/" + str(bar) + " Pos:" + str(obj_cursor.pozicija) + " Note:" + str(obj_cursor.ton) + " Zoom:" + str(zoom_factor)): #tu denes loremIpsum varijablu
+        blitFont((i%100)*4,int(i/100)*6, spriteFont.index(letter))
 
     #blit grid text
     #for i,letter in enumerate("Grid: " + str(bar_grid)): #tu denes loremIpsum varijablu
