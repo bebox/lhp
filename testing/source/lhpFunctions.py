@@ -12,17 +12,6 @@ loremIpsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque p
 color_white = (255,255,255)
 color_git = (77,78,80)
 
-listSnap = ["64", "32", "16", "8", "4", "2", "1"]
-hashSnap = {
-    "1" : 4,
-    "2" : 2,
-    "4" : 1,
-    "8" : 1/2,
-    "16" : 1/4,
-    "32" : 1/8,
-    "64" : 1/16,
-}
-
 roundSnap = {
     4 : 1/4,
     2 : 1/2,
@@ -33,16 +22,19 @@ roundSnap = {
     1/16 : 16
 }
 
-listGrid = ["64", "32", "16", "8", "4", "2", "1"]
-hashGrid = {
-    "1" : 4,
-    "2" : 2,
-    "4" : 1,
-    "8" : 1/2,
-    "16" : 1/4,
-    "32" : 1/8,
-    "64" : 1/16,
+listMusic2Float = [64, 32, 16, 8, 4, 2, 1]
+hashMusic2Float = {
+    1 : 4,
+    2 : 2,
+    4 : 1,
+    8 : 1/2,
+    16 : 1/4,
+    32 : 1/8,
+    64 : 1/16,
 }
+
+def listIndexStep(obj, lista, step):
+    return(lista[lista.index(obj)+step])
 
 class dodaj_notu(object):
   def __init__(self, pozicija, ton, trajanje, predikat):
@@ -53,17 +45,18 @@ class dodaj_notu(object):
     self.ligatura=False
 
 class cursor(object):
-  def __init__(self, pozicija, ton, trajanje):
+  def __init__(self, pozicija, ton, trajanje, snap):
     self.pozicija = pozicija
     self.ton = ton
     self.trajanje = trajanje
     self.sprite = 0
-    self.bg_scroll_x = 0
-    self.bg_scroll_y = 0
-    self.bg_scroll_x_offset = 0 #used for cursor follow efect
-    self.bg_scroll_y_offset = 0 #used for cursor follow efect
-    self.apsolute_x = 0 #used for cursor follow efect
-    self.apsolute_y = 0 #used for cursor follow efect
+    self.snap = snap
+    #self.bg_scroll_x = 0
+    #self.bg_scroll_y = 0
+    #self.bg_scroll_x_offset = 0 #used for cursor follow efect
+    #self.bg_scroll_y_offset = 0 #used for cursor follow efect
+    #self.apsolute_x = 0 #used for cursor follow efect
+    #self.apsolute_y = 0 #used for cursor follow efect
 
 def findNote(nota, cursorLeft, trajanje):
   if ( nota.pozicija == cursorLeft):

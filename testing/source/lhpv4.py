@@ -11,9 +11,9 @@ display_scale_factor_x = 1 #display scale factor becouse original resolution is 
 display_scale_factor_y = 1 #display scale factor becouse original resolution is 160x90
 display_width = 1200*display_scale_factor_x #this is graphics resolution, hardcoded
 display_height = 600*display_scale_factor_y #this is graphics resolution, hardcoded
-zoom_x = int(208)
+zoom_x = int(208/2)
 zoom_y = int(31)
-bar = 1
+bar = 2
 
 #screen is a pygame default window
 
@@ -58,8 +58,11 @@ def blitBarLine(x, y):
 
 ##bliting of a barLines
 def blitBarLines(x, y, zoom):
-        for i in range(zoom_x):
-            screen.blit(pygame.transform.scale(picBarLines, (1*display_scale_factor_x, 7*display_scale_factor_y)), (i+x*display_scale_factor_x, y*display_scale_factor_y))
+        #for i in range(zoom_x):
+        #    screen.blit(pygame.transform.scale(picBarLines, (1*display_scale_factor_x, 7*display_scale_factor_y)), (i+x*display_scale_factor_x, y*display_scale_factor_y))
+        pixel = 52
+        for i in range(int(zoom_x/pixel)):
+            screen.blit(pygame.transform.scale(picBarLines, (pixel*display_scale_factor_x, 7*display_scale_factor_y)), (i*pixel+x*display_scale_factor_x, y*display_scale_factor_y))
 
 ##bliting of a gridLine
 def blitGridLine(x, y):
@@ -80,11 +83,11 @@ picCursor.set_clip(pygame.Rect(26,0,1,52))
 listCursor.append(picCursor.subsurface(picCursor.get_clip()))
 
 def blitCursor(x, y, velicina):
-        #wide 5 pix
-        screen.blit(pygame.transform.scale(listCursor[0], (5*display_scale_factor_x, 52*display_scale_factor_y)), (x*display_scale_factor_x, y*display_scale_factor_y))
         #should be 43 when it is big 1/4
         for i in range(int(velicina*52*4)):
             screen.blit(pygame.transform.scale(listCursor[2], (1*display_scale_factor_x, 52*display_scale_factor_y)), (i+x*display_scale_factor_x, y*display_scale_factor_y))
+        #wide 5 pix
+        screen.blit(pygame.transform.scale(listCursor[0], (5*display_scale_factor_x, 52*display_scale_factor_y)), (x*display_scale_factor_x, y*display_scale_factor_y))
         #wide 5 pix
         screen.blit(pygame.transform.scale(listCursor[1], (5*display_scale_factor_x, 52*display_scale_factor_y)), ((velicina*52*4-5)+x*display_scale_factor_x, y*display_scale_factor_y))
 
@@ -101,22 +104,21 @@ def blitNote(x, y, velicina):
         #wide 5 pix
         screen.blit(pygame.transform.scale(listNote[0], (14*display_scale_factor_x, 24*display_scale_factor_y)), (x*display_scale_factor_x, y*display_scale_factor_y))
         #should be 43 when it is big 1/4
-        for i in range(int(velicina*52*4)):
+        for i in range(int(velicina*zoom_x)):
             screen.blit(pygame.transform.scale(listNote[2], (1*display_scale_factor_x, 24*display_scale_factor_y)), (14+i+x*display_scale_factor_x, y*display_scale_factor_y))
         #wide 5 pix
         screen.blit(pygame.transform.scale(listNote[2], (14*display_scale_factor_x, 24*display_scale_factor_y)), (14+velicina*52*4+x*display_scale_factor_x, y*display_scale_factor_y))
 
 base_x = 50
 base_y = display_height/2
-cursor_grid = 3
-cursor_snap = 4
+bar_grid = 8
 timeSignature = (3, 4)
 pozicija_x = 0
 pozicija_x_staro = 0
 pozicija_y = 0
 pozicija_y_staro = 0
 
-obj_cursor = cursor(1, 0, 4)
+obj_cursor = cursor(1, 0, 8, 4)
 
 #convert pixel into x:position
 def pixel2Pos(pixel):
@@ -142,7 +144,7 @@ while not crashed:
 ##Keyboard buttons without MODS
         if event.type == pygame.MOUSEMOTION:
             #print ("mouse at (%d, %d)" % event.pos)
-            snap = roundSnap[hashSnap[listSnap[cursor_snap]]]
+            snap = roundSnap[hashMusic2Float[obj_cursor.snap]]
             pozicija_y = round((-(event.pos[1]-base_y+zoom_y*10)/zoom_y)+10)
             pozicija_x = int( ((event.pos[0]-base_x+zoom_x)/zoom_x) * snap)/snap
             #pozicija_x = pixel2Pos(event.pos[0])
@@ -161,9 +163,9 @@ while not crashed:
 
             if pygame.key.get_mods() == 0:
                 if event.key == pygame.K_RIGHT:
-                    obj_cursor.pozicija += 1*hashSnap[listSnap[cursor_snap]]
+                    obj_cursor.pozicija += hashMusic2Float[obj_cursor.snap]
                 if event.key == pygame.K_LEFT:
-                    obj_cursor.pozicija -= 1*hashSnap[listSnap[cursor_snap]]
+                    obj_cursor.pozicija -= hashMusic2Float[obj_cursor.snap]
                 if event.key == pygame.K_UP:
                     obj_cursor.ton += 1
                 if event.key == pygame.K_DOWN:
@@ -174,45 +176,51 @@ while not crashed:
 
             if pygame.key.get_mods() & pygame.KMOD_LSHIFT:
                 if event.key == pygame.K_RIGHT:
-                    obj_cursor.trajanje += 1
+                    obj_cursor.trajanje = listIndexStep(obj_cursor.trajanje, listMusic2Float, +1)
                 if event.key == pygame.K_LEFT:
-                    obj_cursor.trajanje -= 1
+                    obj_cursor.trajanje = listIndexStep(obj_cursor.trajanje, listMusic2Float, -1)
                 if event.key == pygame.K_UP:
-                    cursor_snap += 1
+                    obj_cursor.snap = listIndexStep(obj_cursor.snap, listMusic2Float, +1)
                 if event.key == pygame.K_DOWN:
-                    cursor_snap -= 1
+                    obj_cursor.snap = listIndexStep(obj_cursor.snap, listMusic2Float, -1)
 #
 #    #flipanje
     screen.fill(color_git)
-    #bliting 
+
+    #bliting grid dots
     for y in range(0,4):
-        for i in range(0, int(timeSignature[1]*timeSignature[0]*hashGrid[listGrid[cursor_grid]])*bar):
+        for i in range(0, int(timeSignature[0]*int(obj_cursor.snap)/timeSignature[1])*bar):
             #if hashGrid[listGrid[cursor_grid]] < timeSignature[1]:
                 #zoom_x is beat lenght
                 #blitGridDot(base_x+((i*zoom_x/timeSignature[1])+(zoom_x/timeSignature[1]/2)),base_y-4-31+(y*62)-(62))
-                blitGridDot(base_x+((zoom_x)*i),base_y-4-31+(y*62)-(62))
+                #           base    distance    offset
+                blitGridDot(base_x+((zoom_x*hashMusic2Float[obj_cursor.snap])*i+(zoom_x*hashMusic2Float[listIndexStep(obj_cursor.snap, listMusic2Float, -1)])),base_y-4-31+(y*62)-(62))
+                #blitGridDot(base_x+((zoom_x)*i),base_y-4-31+(y*62)-(62))
+
     #bliting horizontal barlines
     for y in range(0,5):
         for i in range(0,timeSignature[0]*(bar)):
             blitBarLines(base_x+(i*zoom_x),base_y-(6/2)+(y*62)-(62*2), zoom_x)
-    #bliting grid lines
-    #for i in range(0,timeSignature[0]*(bar)):
-    #    if i%timeSignature[0] != 0:
-    #        blitGridLine(base_x+(i*zoom_x), base_y-(290/2))
-    #bliting bar lines
-    #for i in range(0,bar):
-    #    blitBarLine(base_x+(i*zoom_x*timeSignature[0]),base_y-(290/2))
 
-    blitCursor(pos2Pixel(obj_cursor.pozicija), tone2Pixel(obj_cursor.ton)-(52/2), hashSnap[listSnap[obj_cursor.trajanje]])
+    #bliting grid lines
+    for i in range(0,timeSignature[0]*(bar)):
+        if i%timeSignature[0] != 0:
+            blitGridLine(base_x+(i*zoom_x), base_y-(290/2))
+
+    #bliting bar lines
+    for i in range(0,bar):
+        blitBarLine(base_x+(i*zoom_x*timeSignature[0]),base_y-(290/2))
+
+    blitCursor(pos2Pixel(obj_cursor.pozicija), tone2Pixel(obj_cursor.ton)-(52/2), hashMusic2Float[obj_cursor.trajanje])
     #blitNote(base_x+cursor_x+4,base_y-cursor_y, hashSnap[listSnap[cursor_size]])
 
-    ##blit snap
-    for i,letter in enumerate("Snap: " + str(listSnap[cursor_snap])): #tu denes loremIpsum varijablu
+    ##blit snap text
+    for i,letter in enumerate("Snap: " + str(obj_cursor.snap)): #tu denes loremIpsum varijablu
         blitFont((i%40)*4,int(i/40)*6, spriteFont.index(letter))
 
-    #blit grid
-    for i,letter in enumerate("Grid: " + str(listGrid[cursor_grid])): #tu denes loremIpsum varijablu
-        blitFont((i%40)*4,int(i/40)*6+7, spriteFont.index(letter))
+    #blit grid text
+    #for i,letter in enumerate("Grid: " + str(bar_grid)): #tu denes loremIpsum varijablu
+    #    blitFont((i%40)*4,int(i/40)*6+7, spriteFont.index(letter))
 #
 #
 #    #plavi okvir
