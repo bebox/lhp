@@ -24,6 +24,8 @@ shift = 0
 ctrl = 0
 bg_scroll_x = 0
 
+undoList = []
+
 #listZoomFactor = [32, 16, 8, 4, 2, 1, 1/2, 1/4, 1/8, 1/16]
 #listZoomFactor = [math.log(i*0.1+0.1) for i in range(1, 100)]
 #listZoomFactor = [i*0.1 for i in range(1, 100)]
