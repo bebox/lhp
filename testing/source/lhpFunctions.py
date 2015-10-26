@@ -33,6 +33,21 @@ hashMusic2Float = {
     64 : 1/16,
 }
 
+#convert pixel into x:position
+def pixel2Pos(pixel):
+    pozicija_x = (int(((pixel-base_x+zoom_x)/zoom_x)*snap)/snap)-1 #-1
+    return(pozicija_x)
+#convert pixel into y:tone
+def pixel2Tone(pixel):
+    pozicija_y = int(-(pixel-base_y+zoom_y*10)/zoom_y)+10
+    return(pozicija_y)
+def pos2Pixel(pos):
+    pixel = ((pos+1)*zoom_x)+base_x-zoom_x
+    return(pixel)
+def tone2Pixel(pos):
+    pixel = (-pos*zoom_y+base_y-zoom_y*10)+10*zoom_y
+    return(pixel)
+
 def listIndexStep(obj, lista, step):
     index = lista.index(obj)
     if 0 < index+step < len(lista):
@@ -40,12 +55,12 @@ def listIndexStep(obj, lista, step):
     else:
         return(obj)
 
-class dodaj_notu(object):
+class addNote(object):
   def __init__(self, pozicija, ton, trajanje, predikat):
     self.pozicija=pozicija
     self.ton=ton
     self.trajanje=trajanje
-    self.predikat=predikat
+    self.predikat=predikat #1 shoud be natural, 2 sharp, 3 flat and 0 rest
     self.ligatura=False
 
 class cursor(object):
