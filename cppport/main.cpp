@@ -8,17 +8,20 @@
 #define WINDOW_W 640
 #define WINDOW_H 480
 
-const int SCALE_FACTOR = 5;
+const int SCALE_FACTOR = 4;
 std::vector<SDL_Rect> srcRectList; 
 std::vector<SDL_Rect> destRectList; 
 //const char text[] = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvqxyz{|}~~"; 
 const char text[] = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque posuere, est eu finibus posuere, velit nunc faucibus orci, eget congue ligula erat eu nisi. Mauris sed accumsan risus. Nulla pretium urna eu ante consequat lobortis. Suspendisse non arcu porta, aliquam ante eu, ornare tellus. Ut vestibulum vel ex quis consequat. Phasellus auctor fringilla orci, ac viverra metus pulvinar at. Suspendisse non lectus eget justo dapibus scelerisque. Nullam nec venenatis lorem, in elementum sem. Cras sollicitudin ligula vitae nibh dignissim sagittis. Duis vitae finibus nibh. Maecenas ut orci a elit tristique porta quis in massa. Suspendisse id mattis mi, eu dapibus enim. Praesent sodales ante eget ligula euismod, vel pulvinar nibh tempor.";
-//const char text[] = "abcde";
-//int num_elements = (sizeof( text ) / sizeof( text[0] ))-1;
+//const char text[] = "Daniel Kreko Je Debeli!!! -.-  :D :D xD";
+int num_elements = (sizeof( text ) / sizeof( text[0] ))-1;
+int dst_elements = (WINDOW_W/(SHAPE_SIZE_W*SCALE_FACTOR)) * (WINDOW_H/(SHAPE_SIZE_H*SCALE_FACTOR));
 
 int main(int argc, char *argv[])
 {
   //std::cout << num_elements << std::endl;
+  //printf("%d", num_elements);
+
   SDL_Window* Main_Window;
   SDL_Renderer* Main_Renderer;
   SDL_Surface* Loading_Surf;
@@ -41,15 +44,20 @@ int main(int argc, char *argv[])
 
   for(int column = 0; column < 4; column++){
   	for(int row = 0; row < 32; row++){
-  		SrcR.x = row*4;
-  		SrcR.y = column*6;
-  		DestR.x = row*4*SCALE_FACTOR;
-  		DestR.y = column*6*SCALE_FACTOR;
+  		SrcR.x = row*SHAPE_SIZE_W;
+  		SrcR.y = column*SHAPE_SIZE_H;
   		srcRectList.push_back(SrcR);
-  		destRectList.push_back(DestR);
   	}
   }
   
+  for(int column = 0; column < WINDOW_H/(SHAPE_SIZE_H*SCALE_FACTOR); column++){
+  	for(int row = 0; row < WINDOW_W/(SHAPE_SIZE_W*SCALE_FACTOR); row++){
+  		DestR.x = row*SHAPE_SIZE_W*SCALE_FACTOR;
+  		DestR.y = column*SHAPE_SIZE_H*SCALE_FACTOR;
+  		destRectList.push_back(DestR);
+  	}
+  }
+
   auto myDict = std::map<const char, int>{ {' ', 32}, {'!', 33}, {'"', 34}, {'#', 35} ,{'$', 36} ,{'%', 37}, {'&', 38}, {'\'', 39},
 					   { '(', 40 }, { ')', 41 }, { '*', 42 }, {'+', 43}, {',', 44}, {'-', 45}, {'.', 46}, {'/', 47},
 					   { '0', 48 }, { '1', 49 }, { '2', 50 }, {'3', 51}, {'4', 52}, {'5', 53}, {'6', 54}, {'7', 55},
@@ -77,6 +85,8 @@ int main(int argc, char *argv[])
   Main_Window = SDL_CreateWindow("SDL_RenderCopy Example",
   SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WINDOW_W, WINDOW_H, 0);
   Main_Renderer = SDL_CreateRenderer(Main_Window, -1, SDL_RENDERER_ACCELERATED);
+  SDL_SetRenderDrawColor(Main_Renderer, 255, 255, 255, 255);
+
 
   /* The loading of the background texture. Since SDL_LoadBMP() returns
   a surface, we convert it to a texture afterwards for fast accelerated
@@ -107,7 +117,8 @@ int main(int argc, char *argv[])
   	}
 
 	SDL_RenderClear(Main_Renderer);	
-	for(int i = 0; i < 128; ++i){
+	if(num_elements>dst_elements){num_elements = dst_elements;}
+	for(int i = 0; i < num_elements; ++i){
 		SDL_RenderCopy(Main_Renderer, Font_Tx, &srcRectList[myDict[text[i]]], &destRectList[i] );
 	}
 	//SDL_RenderCopy(Main_Renderer, Font_Tx, &srcRectList[36], &destRectList[0] );
