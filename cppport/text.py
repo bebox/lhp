@@ -28,6 +28,7 @@ listSpriteFont = []
 for column in range(0,4):
     for row in range(0, 32):
         picSpriteFont.set_clip(pygame.Rect(row*4,column*6,4,6))
+        print(pygame.Rect(row*4,column*6,4,6))
         listSpriteFont.append(picSpriteFont.subsurface(picSpriteFont.get_clip()))
 
 def blitFont(x, y, letter):
@@ -37,7 +38,8 @@ while not crashed:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             crashed = True
-    for i,letter in enumerate("Daniel debeli Kreko"): #tu denes loremIpsum varijablu
+    for i,letter in enumerate(loremIpsum): #tu denes loremIpsum varijablu
+    #for i,letter in enumerate("Daniel debeli Kreko"): #tu denes loremIpsum varijablu
         blitFont((i%40)*4,int(i/40)*6, spriteFont.index(letter))
     pygame.display.flip()
     clock.tick(60)
